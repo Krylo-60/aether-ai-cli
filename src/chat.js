@@ -10,7 +10,7 @@ import chalk from "chalk";
 import { Marked } from "marked";
 import { markedTerminal } from "marked-terminal";
 
-import { colors, label, separator, keyValue, bullet, modeBadge } from "./ui/theme.js";
+import { colors, label, separator, keyValue, bullet, modeBadge, clearStreamedText } from "./ui/theme.js";
 import { createSpinner } from "./ui/spinner.js";
 import { showBanner } from "./ui/banner.js";
 import { routePrompt } from "./ai/router.js";
@@ -19,11 +19,17 @@ import { getAIConfig } from "./config.js";
 import { MODES, DEFAULT_MODE, getModeByName } from "./modes.js";
 import { parseFile, formatContext } from "./file-parser.js";
 
-// Configure marked for terminal output
-const marked = new Marked(markedTerminal({
+// Configure marked dynamically for terminal output
+const getMarked = () => new Marked(markedTerminal({
   reflowText: true,
-  width: 80,
+  width: process.stdout.columns ? Math.max(20, process.stdout.columns - 4) : 80,
   showSectionPrefix: false,
+  code: chalk.hex("#ffb900"), // Amber/orange for code blocks
+  codespan: chalk.hex("#50fa7b"), // Neon green for inline code
+  heading: chalk.hex("#00f0ff").bold, // Neon cyan for headings
+  strong: chalk.hex("#ff79c6").bold, // Cyberpunk magenta for bold
+  em: chalk.italic,
+  hr: chalk.hex("#44475a"),
 }));
 
 /**
@@ -63,12 +69,20 @@ export async function startChat(options = {}) {
     );
   }
 
-  // Create readline interface
+  // Create readline interface with slash-commands autocomplete completer
   const rl = createInterface({
     input: process.stdin,
     output: process.stdout,
     prompt: colors.accent3("  ❯ "),
     terminal: true,
+    completer: (line) => {
+      const completions = [
+        "/help", "/mode", "/modes", "/attach", "/files", "/clear",
+        "/providers", "/export", "/status", "/copy", "/exit", "/quit"
+      ];
+      const hits = completions.filter((c) => c.startsWith(line));
+      return [hits.length ? hits : [], line];
+    }
   });
 
   rl.prompt();
@@ -111,8 +125,19 @@ export async function startChat(options = {}) {
     );
     spinner.start();
 
+    let hasStartedStreaming = false;
+    let streamedText = "";
+    const onToken = (token) => {
+      if (!hasStartedStreaming) {
+        hasStartedStreaming = true;
+        spinner.stop();
+      }
+      process.stdout.write(token);
+      streamedText += token;
+    };
+
     try {
-      const result = await routePrompt(fullPrompt, currentMode.systemPrompt, aiConfig);
+      const result = await routePrompt(fullPrompt, currentMode.systemPrompt, aiConfig, onToken);
       spinner.stop();
 
       // Store in history
@@ -126,20 +151,24 @@ export async function startChat(options = {}) {
         timestamp: new Date(),
       });
 
+      if (hasStartedStreaming) {
+        clearStreamedText(streamedText);
+      }
+
       // Display response
       console.log("");
       console.log(label.aether + " " + providerBadge(result));
-      console.log(separator("─", 62));
+      console.log(separator("─"));
       console.log("");
 
       if (result.provider === "local" || result.provider === "krylo-fallback") {
         console.log(colors.text("  " + result.text.split("\n").join("\n  ")));
       } else {
-        const rendered = marked.parse(result.text);
+        const rendered = getMarked().parse(result.text);
         console.log(rendered);
       }
 
-      console.log(separator("─", 62));
+      console.log(separator("─"));
       console.log(
         "  " + colors.dim(`Node ${result.node} • ${result.provider}`) +
         (result.model ? colors.dim(` • ${result.model}`) : "") +
@@ -223,7 +252,7 @@ async function handleCommand(input, ctx) {
 function showHelp() {
   console.log("");
   console.log(colors.brand("  ⚡ AETHER CLI COMMANDS"));
-  console.log(separator("─", 62));
+  console.log(separator("─"));
   console.log("");
   console.log(keyValue("/help", "Show this help menu"));
   console.log(keyValue("/mode <name>", "Switch mode (synthesis, research, architect, titan)"));
@@ -267,7 +296,7 @@ function handleModeSwitch(args, ctx) {
 function showModes() {
   console.log("");
   console.log(colors.brand("  ◈ AVAILABLE REASONING MODES"));
-  console.log(separator("─", 62));
+  console.log(separator("─"));
   console.log("");
 
   for (const mode of Object.values(MODES)) {
@@ -343,7 +372,7 @@ function showStatus(ctx) {
 
   console.log("");
   console.log(colors.brand("  ◈ SESSION STATUS"));
-  console.log(separator("─", 62));
+  console.log(separator("─"));
   console.log(keyValue("  Mode", ctx.currentMode.label));
   console.log(keyValue("  Layer", ctx.currentMode.layer));
   console.log(keyValue("  Exchanges", String(Math.floor(ctx.history.length / 2))));
@@ -357,7 +386,7 @@ function showActiveProviders(aiConfig) {
 
   console.log("");
   console.log(colors.brand("  ◈ ACTIVE PROVIDERS"));
-  console.log(separator("─", 62));
+  console.log(separator("─"));
 
   if (active.length === 0) {
     console.log("  " + colors.warning("No providers. Run `aether setup` to configure.") + "\n");

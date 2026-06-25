@@ -26,7 +26,7 @@ import {
  * @param {object} config - Flat config object with all API keys
  * @returns {Promise<{ text: string, provider: string, model?: string, node: number, type?: string }>}
  */
-export async function routePrompt(prompt, systemPrompt, config) {
+export async function routePrompt(prompt, systemPrompt, config, onToken) {
   // ── Node 0: Local Math Solver ───────────────────────────
   const mathExpr = detectMathExpression(prompt);
   if (mathExpr) {
@@ -70,27 +70,29 @@ export async function routePrompt(prompt, systemPrompt, config) {
         case "openai":
           result = await callOpenAICompatible(
             prompt, systemPrompt, apiKey,
-            provider.baseUrl, model, provider.name
+            provider.baseUrl, model, provider.name,
+            onToken
           );
           break;
 
         case "custom-google":
-          result = await callGoogleGemini(prompt, systemPrompt, apiKey, model);
+          result = await callGoogleGemini(prompt, systemPrompt, apiKey, model, onToken);
           break;
 
         case "custom-anthropic":
-          result = await callAnthropic(prompt, systemPrompt, apiKey, model);
+          result = await callAnthropic(prompt, systemPrompt, apiKey, model, onToken);
           break;
 
         case "custom-cohere":
-          result = await callCohere(prompt, systemPrompt, apiKey, model);
+          result = await callCohere(prompt, systemPrompt, apiKey, model, onToken);
           break;
 
         default:
           // Treat unknown formats as OpenAI-compatible
           result = await callOpenAICompatible(
             prompt, systemPrompt, apiKey,
-            provider.baseUrl, model, provider.name
+            provider.baseUrl, model, provider.name,
+            onToken
           );
       }
 

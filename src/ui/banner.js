@@ -29,7 +29,7 @@ export function showBanner(currentMode = "titan") {
     c1("  ⚡ ") + colors.text.bold("Aether Core AI v110") + colors.dim(" — Fusion Command Station"),
     c2("  ◈  ") + colors.muted(`Active Mode: `) + modeLabel(currentMode),
     "",
-    separator("─", 62),
+    separator("─"),
     "",
     bullet("Type your prompt and press " + colors.accent("Enter") + " to query."),
     bullet("Use " + colors.accent("/help") + " for all commands."),
@@ -37,7 +37,7 @@ export function showBanner(currentMode = "titan") {
     bullet("Use " + colors.accent("/attach <file>") + " to add file context."),
     bullet("Use " + colors.accent("/exit") + " or " + colors.accent("Ctrl+C") + " to quit."),
     "",
-    separator("─", 62),
+    separator("─"),
     "",
   ];
 

@@ -8,7 +8,7 @@ import chalk from "chalk";
 import { Marked } from "marked";
 import { markedTerminal } from "marked-terminal";
 
-import { colors, label, separator, keyValue, bullet } from "./ui/theme.js";
+import { colors, label, separator, keyValue, bullet, clearStreamedText } from "./ui/theme.js";
 import { createSpinner } from "./ui/spinner.js";
 import { routePrompt } from "./ai/router.js";
 import { PROVIDERS, getProvidersByTier, getActiveProviders } from "./ai/providers.js";
@@ -27,11 +27,17 @@ import {
   isValidConfigKey,
 } from "./config.js";
 
-// Configure marked for terminal output
-const marked = new Marked(markedTerminal({
+// Configure marked dynamically for terminal output
+const getMarked = () => new Marked(markedTerminal({
   reflowText: true,
-  width: 80,
+  width: process.stdout.columns ? Math.max(20, process.stdout.columns - 4) : 80,
   showSectionPrefix: false,
+  code: chalk.hex("#ffb900"), // Amber/orange for code blocks
+  codespan: chalk.hex("#50fa7b"), // Neon green for inline code
+  heading: chalk.hex("#00f0ff").bold, // Neon cyan for headings
+  strong: chalk.hex("#ff79c6").bold, // Cyberpunk magenta for bold
+  em: chalk.italic,
+  hr: chalk.hex("#44475a"),
 }));
 
 const VERSION = "1.0.0";
@@ -205,26 +211,46 @@ async function handleAsk(prompt, opts) {
   const spinner = createSpinner(colors.muted("Routing through failover mesh..."));
   spinner.start();
 
+  let hasStartedStreaming = false;
+  let streamedText = "";
+  const onToken = (token) => {
+    if (!hasStartedStreaming) {
+      hasStartedStreaming = true;
+      spinner.stop();
+    }
+    process.stdout.write(token);
+    streamedText += token;
+  };
+
   try {
-    const result = await routePrompt(fullPrompt, mode.systemPrompt, aiConfig);
+    const result = await routePrompt(fullPrompt, mode.systemPrompt, aiConfig, onToken);
     spinner.stop();
 
     if (opts.raw) {
-      console.log(result.text);
+      if (!hasStartedStreaming) {
+        console.log(result.text);
+      } else {
+        if (!result.text.endsWith("\n")) {
+          console.log("");
+        }
+      }
     } else {
+      if (hasStartedStreaming) {
+        clearStreamedText(streamedText);
+      }
       console.log("");
       console.log(label.aether + " " + colors.dim(`via ${result.provider}${result.model ? ` (${result.model})` : ""} • Node ${result.node}`));
-      console.log(separator("─", 62));
+      console.log(separator("─"));
       console.log("");
 
       if (result.provider === "local" || result.provider === "krylo-fallback") {
         console.log(colors.text("  " + result.text.split("\n").join("\n  ")));
       } else {
-        const rendered = marked.parse(result.text);
+        const rendered = getMarked().parse(result.text);
         console.log(rendered);
       }
 
-      console.log(separator("─", 62));
+      console.log(separator("─"));
     }
   } catch (err) {
     spinner.fail("Request failed");
@@ -283,7 +309,7 @@ async function handleConfigList() {
 
   console.log("");
   console.log(colors.brand("  ◈ CONFIGURATION"));
-  console.log(separator("─", 62));
+  console.log(separator("─"));
   for (const [k, v] of Object.entries(config)) {
     console.log(keyValue("  " + k, v));
   }
@@ -309,7 +335,7 @@ async function handleProviders(opts) {
 
   console.log("");
   console.log(colors.brand("  ⚡ SUPPORTED AI PROVIDERS"));
-  console.log(separator("─", 62));
+  console.log(separator("─"));
 
   const tiers = getProvidersByTier();
   const sections = [
@@ -337,7 +363,7 @@ async function handleProviders(opts) {
     }
   }
 
-  console.log(separator("─", 62));
+  console.log(separator("─"));
   console.log("  " + colors.muted("Configure: ") + colors.accent("aether config set <KEY_NAME> <your-key>"));
   console.log("  " + colors.muted("Quick setup: ") + colors.accent("aether setup"));
   console.log("");
@@ -347,7 +373,7 @@ function handleModels(providerName) {
   if (!providerName) {
     console.log("");
     console.log(colors.brand("  ◈ MODELS BY PROVIDER"));
-    console.log(separator("─", 62));
+    console.log(separator("─"));
 
     for (const [id, p] of Object.entries(PROVIDERS)) {
       console.log("");
@@ -372,7 +398,7 @@ function handleModels(providerName) {
 
   console.log("");
   console.log(colors.brand(`  ◈ ${provider.name} MODELS`));
-  console.log(separator("─", 62));
+  console.log(separator("─"));
   for (const m of provider.models) {
     const isDefault = m === provider.defaultModel;
     console.log("  " + (isDefault ? colors.accent3("★ " + m + " (default)") : colors.text("  " + m)));
@@ -384,7 +410,7 @@ function handleModels(providerName) {
 function handleModes() {
   console.log("");
   console.log(colors.brand("  ◈ AETHER REASONING MODES"));
-  console.log(separator("─", 62));
+  console.log(separator("─"));
   console.log("");
 
   for (const mode of Object.values(MODES)) {
@@ -416,7 +442,7 @@ async function handleStatus() {
 
   console.log("");
   console.log(colors.brand("  ⚡ AETHER SYSTEM STATUS"));
-  console.log(separator("─", 62));
+  console.log(separator("─"));
   console.log(keyValue("  Version", `v${VERSION}`));
   console.log(keyValue("  Config", exists ? colors.success("✓ Found") : colors.warning("✗ Not found")));
   console.log(keyValue("  Location", getConfigPath()));
@@ -449,7 +475,7 @@ async function handleSetup() {
 
   console.log("");
   console.log(colors.brand("  ⚡ AETHER SETUP WIZARD"));
-  console.log(separator("─", 62));
+  console.log(separator("─"));
   console.log("");
   console.log(colors.text("  Configure your AI providers. Press Enter to skip any provider."));
   console.log(colors.muted("  Keys are stored locally at: " + getConfigPath()));
@@ -525,7 +551,7 @@ async function handleSetup() {
 function showMiniBanner() {
   console.log("");
   console.log(colors.brand("  ⚡ Aether Core AI v110") + colors.dim(" — Universal AI Gateway"));
-  console.log(separator("─", 50));
+  console.log(separator("─"));
   console.log("");
 }
 

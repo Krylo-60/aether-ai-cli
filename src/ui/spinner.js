@@ -12,7 +12,10 @@ import ora from "ora";
 export function createSpinner(text) {
   return ora({
     text,
-    spinner: "dots",
+    spinner: {
+      interval: 80,
+      frames: ["▖", "▘", "▝", "▗"],
+    },
     color: "cyan",
   });
 }

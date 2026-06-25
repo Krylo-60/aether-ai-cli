@@ -1,6 +1,6 @@
 import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
-import { separator, clearStreamedText, getActiveTheme, setTheme, getThemesList } from "../src/ui/theme.js";
+import { separator, clearStreamedText, StreamFilter, getActiveTheme, setTheme, getThemesList } from "../src/ui/theme.js";
 import { createSpinner } from "../src/ui/spinner.js";
 import { routePrompt } from "../src/ai/router.js";
 import { getModeByName, MODES } from "../src/modes.js";
@@ -147,5 +147,24 @@ test("Cyberpunk UX and Streaming Suite", async (t) => {
 
     const unknown = getModeByName("nonexistent-mode");
     assert.strictEqual(unknown, null);
+  });
+
+  await t.test("StreamFilter should suppress file blocks but output other text", () => {
+    let output = "";
+    const filter = new StreamFilter((chunk) => {
+      output += chunk;
+    });
+
+    filter.write("Hello ");
+    filter.write("world! [WRITE_");
+    filter.write("FILE: test.txt]");
+    filter.write("This content is hidden\n");
+    filter.write("[END_WRITE] After block");
+    filter.flush();
+
+    assert.ok(output.includes("Hello world!"));
+    assert.ok(output.includes("After block"));
+    assert.ok(output.includes("File creation request: test.txt"));
+    assert.ok(!output.includes("This content is hidden"));
   });
 });

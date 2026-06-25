@@ -20,6 +20,7 @@ import {
   bullet,
   modeBadge,
   clearStreamedText,
+  StreamFilter,
   getActiveTheme,
   setTheme,
   getThemesList
@@ -228,19 +229,21 @@ export async function startChat(options = {}) {
 
     let hasStartedStreaming = false;
     let streamedText = "";
+    const filter = new StreamFilter(process.stdout.write.bind(process.stdout));
     const onToken = (token) => {
       if (!hasStartedStreaming) {
         hasStartedStreaming = true;
         firstTokenTime = Date.now();
         spinner.stop();
       }
-      process.stdout.write(token);
+      filter.write(token);
       streamedText += token;
     };
 
     try {
       const result = await routePrompt(fullPrompt, currentMode.systemPrompt, aiConfig, onToken, history);
       spinner.stop();
+      filter.flush();
 
       // Store in history
       history.push({ role: "user", content: originalInput, timestamp: new Date() });
@@ -257,7 +260,7 @@ export async function startChat(options = {}) {
       await saveHistory(history);
 
       if (hasStartedStreaming) {
-        clearStreamedText(streamedText);
+        clearStreamedText(filter.filteredText);
       }
 
       // Display response

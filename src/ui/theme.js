@@ -148,6 +148,107 @@ export function clearStreamedText(text) {
   }
 }
 
+/**
+ * Filter stream tokens on the fly to suppress file write blocks
+ * and print a cleaner placeholder badge in real-time instead of raw code.
+ */
+export class StreamFilter {
+  constructor(writeFn) {
+    this.writeFn = writeFn;
+    this.buffer = "";
+    this.cursor = 0;
+    this.state = "NORMAL"; // "NORMAL", "COLLECTING_FILENAME", "SUPPRESSING"
+    this.filenameBuffer = "";
+    this.filteredText = "";
+  }
+
+  _write(text) {
+    this.writeFn(text);
+    this.filteredText += text;
+  }
+
+  write(token) {
+    this.buffer += token;
+    this.process();
+  }
+
+  process() {
+    const writeTag = "[WRITE_FILE:";
+    const endTag = "[END_WRITE]";
+
+    while (this.cursor < this.buffer.length) {
+      if (this.state === "NORMAL") {
+        const nextIndex = this.buffer.indexOf(writeTag, this.cursor);
+        if (nextIndex !== -1) {
+          if (nextIndex > this.cursor) {
+            this._write(this.buffer.slice(this.cursor, nextIndex));
+          }
+          this.cursor = nextIndex + writeTag.length;
+          this.state = "COLLECTING_FILENAME";
+          this.filenameBuffer = "";
+        } else {
+          // Check for partial match of writeTag at the end of the buffer
+          let partialMatchLength = 0;
+          for (let i = 1; i < writeTag.length; i++) {
+            const part = writeTag.slice(0, i);
+            if (this.buffer.endsWith(part)) {
+              partialMatchLength = i;
+              break;
+            }
+          }
+          const safeEnd = this.buffer.length - partialMatchLength;
+          if (safeEnd > this.cursor) {
+            this._write(this.buffer.slice(this.cursor, safeEnd));
+            this.cursor = safeEnd;
+          }
+          break; // Wait for more tokens
+        }
+      } else if (this.state === "COLLECTING_FILENAME") {
+        const closeIndex = this.buffer.indexOf("]", this.cursor);
+        if (closeIndex !== -1) {
+          this.filenameBuffer += this.buffer.slice(this.cursor, closeIndex);
+          const filename = this.filenameBuffer.trim();
+          this._write(`\n\n${colors.brand("⚡ [File creation request: " + filename + "]")}\n\n`);
+          this.cursor = closeIndex + 1;
+          this.state = "SUPPRESSING";
+        } else {
+          this.filenameBuffer += this.buffer.slice(this.cursor);
+          this.cursor = this.buffer.length;
+          break; // Wait for more tokens
+        }
+      } else if (this.state === "SUPPRESSING") {
+        const nextIndex = this.buffer.indexOf(endTag, this.cursor);
+        if (nextIndex !== -1) {
+          this.cursor = nextIndex + endTag.length;
+          this.state = "NORMAL";
+        } else {
+          // Check for partial match of endTag at the end of the buffer
+          let partialMatchLength = 0;
+          for (let i = 1; i < endTag.length; i++) {
+            const part = endTag.slice(0, i);
+            if (this.buffer.endsWith(part)) {
+              partialMatchLength = i;
+              break;
+            }
+          }
+          const safeEnd = this.buffer.length - partialMatchLength;
+          if (safeEnd > this.cursor) {
+            this.cursor = safeEnd;
+          }
+          break; // Wait for more tokens
+        }
+      }
+    }
+  }
+
+  flush() {
+    if (this.state === "NORMAL" && this.cursor < this.buffer.length) {
+      this._write(this.buffer.slice(this.cursor));
+      this.cursor = this.buffer.length;
+    }
+  }
+}
+
 // ── Theme State Management ────────────────────────────────
 
 export function getActiveTheme() {

@@ -18,6 +18,7 @@ import {
   keyValue,
   bullet,
   clearStreamedText,
+  StreamFilter,
   getActiveTheme,
   setTheme,
   getThemesList,
@@ -253,19 +254,27 @@ async function handleAsk(prompt, opts) {
 
   let hasStartedStreaming = false;
   let streamedText = "";
+  const filter = !opts.raw ? new StreamFilter(process.stdout.write.bind(process.stdout)) : null;
   const onToken = (token) => {
     if (!hasStartedStreaming) {
       hasStartedStreaming = true;
       firstTokenTime = Date.now();
       spinner.stop();
     }
-    process.stdout.write(token);
+    if (filter) {
+      filter.write(token);
+    } else {
+      process.stdout.write(token);
+    }
     streamedText += token;
   };
 
   try {
     const result = await routePrompt(fullPrompt, mode.systemPrompt, aiConfig, onToken);
     spinner.stop();
+    if (filter) {
+      filter.flush();
+    }
 
     if (opts.raw) {
       if (!hasStartedStreaming) {
@@ -277,7 +286,7 @@ async function handleAsk(prompt, opts) {
       }
     } else {
       if (hasStartedStreaming) {
-        clearStreamedText(streamedText);
+        clearStreamedText(filter ? filter.filteredText : streamedText);
       }
       console.log("");
       console.log(label.aether + " " + colors.dim(`via ${result.provider}${result.model ? ` (${result.model})` : ""} • Node ${result.node}`));

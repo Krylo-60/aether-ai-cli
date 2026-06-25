@@ -164,7 +164,7 @@ export async function configExists() {
 export function isValidConfigKey(key) {
   const upper = key.toUpperCase();
   // Accept any API key or model override
-  if (upper.endsWith("_API_KEY") || upper.endsWith("_API_KEYS") || upper.endsWith("_MODEL") || upper === "THEME") {
+  if (upper.endsWith("_API_KEY") || upper.endsWith("_API_KEYS") || upper.endsWith("_MODEL") || upper === "THEME" || upper === "CUSTOM_COMMANDS") {
     return true;
   }
   // Accept known config keys

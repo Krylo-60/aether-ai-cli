@@ -5,7 +5,8 @@
 
 import { createInterface } from "node:readline";
 import { writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { readdirSync, existsSync, statSync } from "node:fs";
+import { resolve, join, sep } from "node:path";
 import { exec } from "node:child_process";
 import chalk from "chalk";
 import { Marked } from "marked";
@@ -43,12 +44,12 @@ const getMarked = () => new Marked(markedTerminal({
   reflowText: true,
   width: process.stdout.columns ? Math.max(20, process.stdout.columns - 4) : 80,
   showSectionPrefix: false,
-  code: chalk.hex(colors.orange ? "#ffb900" : "#ffb900"),
-  codespan: chalk.hex("#50fa7b"),
-  heading: chalk.hex("#00f0ff").bold,
-  strong: chalk.hex("#ff79c6").bold,
+  code: (c) => colors.orange(c),
+  codespan: (c) => colors.accent3(c),
+  heading: (h) => colors.accent(h).bold,
+  strong: (s) => colors.magenta(s).bold,
   em: chalk.italic,
-  hr: chalk.hex("#44475a"),
+  hr: (h) => colors.dim(h),
 }));
 
 /**
@@ -111,66 +112,115 @@ export async function startChat(options = {}) {
     );
   }
 
-  // Create readline interface with slash-commands autocomplete
+  // Completer: handles commands & dynamic local file path autocomplete
+  const completer = (line) => {
+    const builtIn = [
+      "/help", "/mode", "/modes", "/attach", "/files", "/clear",
+      "/providers", "/export", "/status", "/copy", "/exit", "/quit",
+      "/theme", "/themes", "/history-clear", "/game", "/abort", "/cmd"
+    ];
+    const customCmds = aiConfig.CUSTOM_COMMANDS || {};
+    const commands = [...builtIn, ...Object.keys(customCmds)];
+
+    // File path autocompletion on /attach
+    if (line.startsWith("/attach ")) {
+      const query = line.slice(8);
+      const lastSlash = Math.max(query.lastIndexOf("/"), query.lastIndexOf("\\"));
+      let searchDir = ".";
+      let searchPrefix = query;
+
+      if (lastSlash !== -1) {
+        searchDir = query.slice(0, lastSlash);
+        if (searchDir === "") {
+          searchDir = sep;
+        }
+        searchPrefix = query.slice(lastSlash + 1);
+      }
+
+      try {
+        const resolved = resolve(searchDir);
+        if (existsSync(resolved) && statSync(resolved).isDirectory()) {
+          const files = readdirSync(resolved);
+          const hits = files
+            .filter((f) => f.toLowerCase().startsWith(searchPrefix.toLowerCase()) && !f.startsWith("."))
+            .map((f) => {
+              const fullPath = searchDir === "." || searchDir === sep ? f : join(searchDir, f);
+              const fullResolved = resolve(fullPath);
+              const isDir = statSync(fullResolved).isDirectory();
+              return `/attach ${fullPath}${isDir ? "/" : ""}`;
+            });
+          return [hits.length ? hits : [], line];
+        }
+      } catch (e) {
+        // Fallback silently on fs errors
+      }
+      return [[], line];
+    }
+
+    // Sub-arguments autocomplete on /mode
+    if (line.startsWith("/mode ")) {
+      const query = line.slice(6).toLowerCase();
+      const modesList = ["synthesis", "research", "architect", "titan"];
+      const hits = modesList
+        .filter((m) => m.startsWith(query))
+        .map((m) => `/mode ${m}`);
+      return [hits.length ? hits : [], line];
+    }
+
+    // Sub-arguments autocomplete on /theme
+    if (line.startsWith("/theme ")) {
+      const query = line.slice(7).toLowerCase();
+      const themesList = getThemesList();
+      const hits = themesList
+        .filter((t) => t.startsWith(query))
+        .map((t) => `/theme ${t}`);
+      return [hits.length ? hits : [], line];
+    }
+
+    // Sub-arguments autocomplete on /cmd
+    if (line.startsWith("/cmd ")) {
+      const query = line.slice(5).toLowerCase();
+      const subcmds = ["list", "add", "remove"];
+      const hits = subcmds
+        .filter((s) => s.startsWith(query))
+        .map((s) => `/cmd ${s}`);
+      return [hits.length ? hits : [], line];
+    }
+
+    const hits = commands.filter((c) => c.startsWith(line));
+    return [hits.length ? hits : [], line];
+  };
+
+  // Create readline interface
   const rl = createInterface({
     input: process.stdin,
     output: process.stdout,
     prompt: colors.accent("  ❯ "),
     terminal: true,
-    completer: (line) => {
-      const completions = [
-        "/help", "/mode", "/modes", "/attach", "/files", "/clear",
-        "/providers", "/export", "/status", "/copy", "/exit", "/quit",
-        "/theme", "/themes", "/history-clear", "/game", "/abort"
-      ];
-      const hits = completions.filter((c) => c.startsWith(line));
-      return [hits.length ? hits : [], line];
-    }
+    completer
   });
 
-  rl.prompt();
+  // Load persistent history entries directly into the shell up/down array
+  if (history.length > 0) {
+    const userQueries = history
+      .filter((h) => h.role === "user")
+      .map((h) => h.content);
+    // Readline history is structured newest first (index 0)
+    rl.history = [...new Set(userQueries)].reverse();
+  }
 
-  rl.on("line", async (line) => {
-    const input = line.trim();
-    if (!input) {
-      rl.prompt();
-      return;
-    }
-
-    // ── Handle Game Input ──────────────────────────────────
-    if (game.active && !input.startsWith("/")) {
-      handleGuess(input, game);
-      rl.prompt();
-      return;
-    }
-
-    // ── Handle Slash Commands ──────────────────────────────
-    if (input.startsWith("/")) {
-      const handled = await handleCommand(input, {
-        currentMode,
-        attachedFiles,
-        history,
-        aiConfig,
-        game,
-        setMode: (mode) => { currentMode = mode; },
-        addFile: (file) => { attachedFiles.push(file); },
-        clearFiles: () => { attachedFiles = []; },
-        rl,
-      });
-      if (handled !== "exit") {
-        rl.prompt();
-      }
-      return;
-    }
-
+  // ── AI Execution Helper ──────────────────────────────────
+  async function executeAIQuery(promptText, originalInput = promptText) {
     // ── Build Prompt with Context ─────────────────────────
-    let fullPrompt = input;
+    let fullPrompt = promptText;
     if (attachedFiles.length > 0) {
       const contexts = attachedFiles.map((f) => formatContext(f)).join("\n\n");
-      fullPrompt = `${contexts}\n\n${input}`;
+      fullPrompt = `${contexts}\n\n${promptText}`;
     }
 
     // ── Query AI ──────────────────────────────────────────
+    const queryStartTime = Date.now();
+    let firstTokenTime = 0;
     const spinner = createSpinner(
       colors.muted(`Routing through mesh ${currentMode.label}...`)
     );
@@ -181,6 +231,7 @@ export async function startChat(options = {}) {
     const onToken = (token) => {
       if (!hasStartedStreaming) {
         hasStartedStreaming = true;
+        firstTokenTime = Date.now();
         spinner.stop();
       }
       process.stdout.write(token);
@@ -192,7 +243,7 @@ export async function startChat(options = {}) {
       spinner.stop();
 
       // Store in history
-      history.push({ role: "user", content: input, timestamp: new Date() });
+      history.push({ role: "user", content: originalInput, timestamp: new Date() });
       history.push({
         role: "assistant",
         content: result.text,
@@ -222,10 +273,22 @@ export async function startChat(options = {}) {
         console.log(rendered);
       }
 
+      const elapsedSec = ((Date.now() - queryStartTime) / 1000).toFixed(1);
+      let speedText = "";
+      if (firstTokenTime > 0) {
+        const streamElapsed = (Date.now() - firstTokenTime) / 1000;
+        if (streamElapsed > 0.05) {
+          const estimatedTokens = Math.max(1, Math.round(streamedText.length / 4));
+          const tps = (estimatedTokens / streamElapsed).toFixed(1);
+          speedText = ` • ${tps} tok/s`;
+        }
+      }
+
       console.log(separator("─"));
       console.log(
         "  " + colors.dim(`Node ${result.node} • ${result.provider}`) +
         (result.model ? colors.dim(` • ${result.model}`) : "") +
+        colors.dim(` • ${elapsedSec}s${speedText}`) +
         colors.dim(` • ${Math.floor(history.length / 2)} exchanges`)
       );
       console.log("");
@@ -234,6 +297,72 @@ export async function startChat(options = {}) {
       console.log("\n" + label.error + " " + colors.danger(err.message) + "\n");
     }
 
+    // Sync shell's recall history list
+    const userQueries = history
+      .filter((h) => h.role === "user")
+      .map((h) => h.content);
+    rl.history = [...new Set(userQueries)].reverse();
+  }
+
+  rl.prompt();
+
+  rl.on("line", async (line) => {
+    const input = line.trim();
+    if (!input) {
+      rl.prompt();
+      return;
+    }
+
+    // ── Handle Game Input ──────────────────────────────────
+    if (game.active && !input.startsWith("/")) {
+      handleGuess(input, game);
+      rl.prompt();
+      return;
+    }
+
+    // ── Handle Slash Commands ──────────────────────────────
+    if (input.startsWith("/")) {
+      const [cmd, ...args] = input.split(/\s+/);
+      const builtInList = [
+        "/help", "/mode", "/modes", "/attach", "/files", "/clear",
+        "/providers", "/export", "/status", "/copy", "/exit", "/quit",
+        "/theme", "/themes", "/history-clear", "/game", "/abort", "/cmd",
+        "/guess"
+      ];
+      
+      const customCmds = aiConfig.CUSTOM_COMMANDS || {};
+      
+      if (!builtInList.includes(cmd.toLowerCase()) && customCmds[cmd]) {
+        const template = customCmds[cmd];
+        const userArg = args.join(" ");
+        const rewrittenPrompt = template + (userArg ? " " + userArg : "");
+        
+        console.log("\n" + label.system + " " + colors.accent(`Executing custom command: `) + colors.text(cmd));
+        console.log("  " + colors.muted("Prompt: ") + colors.text(rewrittenPrompt) + "\n");
+        
+        await executeAIQuery(rewrittenPrompt, input);
+        rl.prompt();
+        return;
+      }
+
+      const handled = await handleCommand(input, {
+        currentMode,
+        attachedFiles,
+        history,
+        aiConfig,
+        game,
+        setMode: (mode) => { currentMode = mode; },
+        addFile: (file) => { attachedFiles.push(file); },
+        clearFiles: () => { attachedFiles = []; },
+        rl,
+      });
+      if (handled !== "exit") {
+        rl.prompt();
+      }
+      return;
+    }
+
+    await executeAIQuery(input);
     rl.prompt();
   });
 
@@ -297,7 +426,7 @@ async function handleCommand(input, ctx) {
       break;
 
     case "/history-clear":
-      await handleHistoryClear(ctx.history);
+      await handleHistoryClear(ctx.history, ctx.rl);
       break;
 
     case "/game":
@@ -318,6 +447,10 @@ async function handleCommand(input, ctx) {
 
     case "/copy":
       await handleCopy(ctx.history);
+      break;
+
+    case "/cmd":
+      await handleCustomCommands(args, ctx);
       break;
 
     case "/exit":
@@ -342,7 +475,7 @@ function showHelp() {
   console.log(keyValue("/modes", "List all modes with signal metrics"));
   console.log(keyValue("/theme <name>", "Switch visual theme (cyberpunk, matrix, synthwave, crimson)"));
   console.log(keyValue("/themes", "List available visual themes"));
-  console.log(keyValue("/attach <path>", "Attach a file for context"));
+  console.log(keyValue("/attach <path>", "Attach a file for context (supports Tab path autocomplete!)"));
   console.log(keyValue("/files", "List attached files"));
   console.log(keyValue("/clear", "Clear terminal screen and reprint banner"));
   console.log(keyValue("/providers", "Show active AI providers"));
@@ -350,6 +483,7 @@ function showHelp() {
   console.log(keyValue("/history-clear", "Clear saved persistent chat history"));
   console.log(keyValue("/game", "Start the local mainframe hacking mini-game"));
   console.log(keyValue("/copy", "Copy the last assistant response to clipboard"));
+  console.log(keyValue("/cmd <list|add|remove>", "Manage custom command shortcuts"));
   console.log(keyValue("/exit", "End session"));
   console.log("");
 }
@@ -509,17 +643,19 @@ function showThemesList() {
   console.log("");
   console.log(colors.brand("  ◈ AVAILABLE COLOR THEMES"));
   console.log(separator("─"));
+  const active = getActiveTheme();
   for (const t of getThemesList()) {
-    const activeText = t === getActiveTheme() ? colors.success("★ ACTIVE") : "";
+    const activeText = t === active ? colors.success("★ ACTIVE") : "";
     console.log(bullet(t.toUpperCase().padEnd(14) + activeText));
   }
   console.log("");
 }
 
-async function handleHistoryClear(history) {
+async function handleHistoryClear(history, rl) {
   await clearHistory();
   history.length = 0;
-  console.log("\n" + label.system + " " + colors.success("✓ Persistent chat history cleared successfully.\n"));
+  if (rl) rl.history = [];
+  console.log("\n" + label.system + " " + colors.success("✓ Persistent chat history and prompt history cleared.\n"));
 }
 
 function handleGameStart(game) {
@@ -652,7 +788,7 @@ function copyToClipboard(text) {
   });
 }
 
-// ── Utilities ───────────────────────────────────────────────
+// ── Box / Badges / Theme helpers ─────────────────────────────
 
 function providerBadge(result) {
   const badges = {
@@ -688,4 +824,93 @@ function formatBytes(bytes) {
   if (bytes < 1024) return `${bytes}B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+}
+
+/**
+ * Handles the management of custom slash command shortcuts.
+ */
+async function handleCustomCommands(args, ctx) {
+  const sub = args[0]?.toLowerCase();
+  
+  if (sub === "list") {
+    const custom = ctx.aiConfig.CUSTOM_COMMANDS || {};
+    const entries = Object.entries(custom);
+    
+    console.log("");
+    console.log(colors.brand("  ⚡ CUSTOM SHORTCUT COMMANDS"));
+    console.log(separator("─"));
+    
+    if (entries.length === 0) {
+      console.log("  " + colors.muted("No custom commands registered."));
+      console.log("  " + colors.muted("Create one: ") + colors.accent("/cmd add /explain \"Explain this code:\"") + "\n");
+      return;
+    }
+    
+    for (const [cmd, template] of entries) {
+      console.log(`  ${colors.accent(cmd.padEnd(16))} ${colors.text(template)}`);
+    }
+    console.log("");
+    return;
+  }
+  
+  if (sub === "add") {
+    const name = args[1];
+    const template = args.slice(2).join(" ");
+    
+    if (!name || !template) {
+      console.log("\n" + label.system + " " + colors.warning("Usage: /cmd add <name> <template>"));
+      console.log("  " + colors.muted("Example: /cmd add /explain \"Explain this code in detail:\"") + "\n");
+      return;
+    }
+    
+    if (!name.startsWith("/")) {
+      console.log("\n" + label.system + " " + colors.danger("ERROR: Command name must start with a slash '/' (e.g. /explain)") + "\n");
+      return;
+    }
+    
+    const builtIn = [
+      "/help", "/mode", "/modes", "/attach", "/files", "/clear",
+      "/providers", "/export", "/status", "/copy", "/exit", "/quit",
+      "/theme", "/themes", "/history-clear", "/game", "/abort", "/cmd", "/guess"
+    ];
+    
+    if (builtIn.includes(name.toLowerCase())) {
+      console.log("\n" + label.system + " " + colors.danger(`ERROR: Cannot override system command "${name}"`) + "\n");
+      return;
+    }
+    
+    const custom = ctx.aiConfig.CUSTOM_COMMANDS || {};
+    custom[name] = template;
+    
+    await setConfigValue("CUSTOM_COMMANDS", custom);
+    ctx.aiConfig.CUSTOM_COMMANDS = custom; // sync context
+    
+    console.log("\n" + label.system + " " + colors.success(`✓ Command registered successfully!`));
+    console.log(`  ${colors.accent(name)} ➔ "${template}"\n`);
+    return;
+  }
+  
+  if (sub === "remove") {
+    const name = args[1];
+    if (!name) {
+      console.log("\n" + label.system + " " + colors.warning("Usage: /cmd remove <name>") + "\n");
+      return;
+    }
+    
+    const custom = ctx.aiConfig.CUSTOM_COMMANDS || {};
+    if (!custom[name]) {
+      console.log("\n" + label.system + " " + colors.warning(`No custom command named "${name}" exists.`) + "\n");
+      return;
+    }
+    
+    delete custom[name];
+    await setConfigValue("CUSTOM_COMMANDS", custom);
+    ctx.aiConfig.CUSTOM_COMMANDS = custom; // sync context
+    
+    console.log("\n" + label.system + " " + colors.success(`✓ Removed custom command: "${name}"\n`));
+    return;
+  }
+  
+  console.log("\n" + label.system + " " + colors.warning("Usage: /cmd <list|add|remove> [args]"));
+  console.log("  " + colors.muted("Type /help for help or /cmd list to see existing shortcuts.\n"));
 }

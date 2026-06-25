@@ -144,6 +144,7 @@ test("Configuration Loading Suite", async (t) => {
     assert.strictEqual(isValidConfigKey("OPENAI_MODEL"), true);
     assert.strictEqual(isValidConfigKey("GOOGLE_API_KEYS"), true);
     assert.strictEqual(isValidConfigKey("THEME"), true);
+    assert.strictEqual(isValidConfigKey("CUSTOM_COMMANDS"), true);
     assert.strictEqual(isValidConfigKey("INVALID_KEY_NAME"), false);
   });
 
@@ -167,5 +168,15 @@ test("Configuration Loading Suite", async (t) => {
     await clearHistory();
     const cleared = await loadHistory();
     assert.deepStrictEqual(cleared, []);
+  });
+
+  await t.test("getAIConfig supports and loads CUSTOM_COMMANDS correctly", async () => {
+    const testCommands = { "/explain": "Explain this:", "/refactor": "Refactor this:" };
+    await saveConfig({
+      CUSTOM_COMMANDS: testCommands
+    });
+    
+    const config = await getAIConfig();
+    assert.deepStrictEqual(config.CUSTOM_COMMANDS, testCommands);
   });
 });

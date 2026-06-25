@@ -10,10 +10,10 @@ import { colors, separator, bullet } from "./theme.js";
  * @param {string} [currentMode='titan'] - The currently active mode name
  */
 export function showBanner(currentMode = "titan") {
-  const c1 = chalk.hex("#6ce8ff");
-  const c2 = chalk.hex("#2d7dff");
-  const c3 = chalk.hex("#67ffb0");
-  const dim = chalk.hex("#3a5a6f");
+  const c1 = colors.accent;
+  const c2 = colors.accent2;
+  const c3 = colors.accent3;
+  const dim = colors.dim;
 
   const art = [
     "",
@@ -51,10 +51,10 @@ export function showBanner(currentMode = "titan") {
  */
 function modeLabel(mode) {
   const labels = {
-    synthesis: chalk.hex("#67ffb0").bold("Synthesis v2.5"),
-    research:  chalk.hex("#2d7dff").bold("Research v104"),
-    architect: chalk.hex("#b06cff").bold("Architect v55"),
-    titan:     chalk.hex("#6ce8ff").bold("Titan Fusion v110"),
+    synthesis: colors.accent3.bold("Synthesis v2.5"),
+    research:  colors.accent2.bold("Research v104"),
+    architect: colors.magenta.bold("Architect v55"),
+    titan:     colors.accent.bold("Titan Fusion v110"),
   };
   return labels[mode?.toLowerCase()] || labels.titan;
 }

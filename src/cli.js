@@ -42,12 +42,12 @@ const getMarked = () => new Marked(markedTerminal({
   reflowText: true,
   width: process.stdout.columns ? Math.max(20, process.stdout.columns - 4) : 80,
   showSectionPrefix: false,
-  code: chalk.hex("#ffb900"), // Amber/orange for code blocks
-  codespan: chalk.hex("#50fa7b"), // Neon green for inline code
-  heading: chalk.hex("#00f0ff").bold, // Neon cyan for headings
-  strong: chalk.hex("#ff79c6").bold, // Cyberpunk magenta for bold
+  code: (c) => colors.orange(c),
+  codespan: (c) => colors.accent3(c),
+  heading: (h) => colors.accent(h).bold,
+  strong: (s) => colors.magenta(s).bold,
   em: chalk.italic,
-  hr: chalk.hex("#44475a"),
+  hr: (h) => colors.dim(h),
 }));
 
 const VERSION = "1.0.0";
@@ -211,6 +211,10 @@ async function handleAsk(prompt, opts) {
   const mode = getModeByName(opts.mode) || MODES[DEFAULT_MODE];
   const aiConfig = await getAIConfig();
 
+  // Set theme from configuration
+  const theme = aiConfig.THEME || "cyberpunk";
+  setTheme(theme);
+
   // Override model if specified
   if (opts.model) {
     // Set it for all providers
@@ -236,6 +240,8 @@ async function handleAsk(prompt, opts) {
     console.log(label.mode + " " + colors.muted(`${mode.label} • ${mode.layer}`));
   }
 
+  const queryStartTime = Date.now();
+  let firstTokenTime = 0;
   const spinner = createSpinner(colors.muted("Routing through failover mesh..."));
   spinner.start();
 
@@ -244,6 +250,7 @@ async function handleAsk(prompt, opts) {
   const onToken = (token) => {
     if (!hasStartedStreaming) {
       hasStartedStreaming = true;
+      firstTokenTime = Date.now();
       spinner.stop();
     }
     process.stdout.write(token);
@@ -278,7 +285,24 @@ async function handleAsk(prompt, opts) {
         console.log(rendered);
       }
 
+      const elapsedSec = ((Date.now() - queryStartTime) / 1000).toFixed(1);
+      let speedText = "";
+      if (firstTokenTime > 0) {
+        const streamElapsed = (Date.now() - firstTokenTime) / 1000;
+        if (streamElapsed > 0.05) {
+          const estimatedTokens = Math.max(1, Math.round(streamedText.length / 4));
+          const tps = (estimatedTokens / streamElapsed).toFixed(1);
+          speedText = ` • ${tps} tok/s`;
+        }
+      }
+
       console.log(separator("─"));
+      console.log(
+        "  " + colors.dim(`Node ${result.node} • ${result.provider}`) +
+        (result.model ? colors.dim(` • ${result.model}`) : "") +
+        colors.dim(` • ${elapsedSec}s${speedText}`)
+      );
+      console.log("");
     }
   } catch (err) {
     spinner.fail("Request failed");

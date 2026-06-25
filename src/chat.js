@@ -324,7 +324,7 @@ export async function startChat(options = {}) {
     if (input.startsWith("/")) {
       const [cmd, ...args] = input.split(/\s+/);
       const builtInList = [
-        "/help", "/mode", "/modes", "/attach", "/files", "/clear",
+        "/", "/help", "/mode", "/modes", "/attach", "/files", "/clear",
         "/providers", "/export", "/status", "/copy", "/exit", "/quit",
         "/theme", "/themes", "/history-clear", "/game", "/abort", "/cmd",
         "/guess"
@@ -379,8 +379,9 @@ async function handleCommand(input, ctx) {
   const [cmd, ...args] = input.split(/\s+/);
 
   switch (cmd.toLowerCase()) {
+    case "/":
     case "/help":
-      showHelp();
+      showHelp(ctx.aiConfig);
       break;
 
     case "/mode":
@@ -465,11 +466,12 @@ async function handleCommand(input, ctx) {
 
 // ── Command Handlers ────────────────────────────────────────
 
-function showHelp() {
+function showHelp(aiConfig) {
   console.log("");
   console.log(colors.brand("  ⚡ AETHER CLI COMMANDS"));
   console.log(separator("─"));
   console.log("");
+  console.log(keyValue("/", "Show this help menu"));
   console.log(keyValue("/help", "Show this help menu"));
   console.log(keyValue("/mode <name>", "Switch mode (synthesis, research, architect, titan)"));
   console.log(keyValue("/modes", "List all modes with signal metrics"));
@@ -485,6 +487,19 @@ function showHelp() {
   console.log(keyValue("/copy", "Copy the last assistant response to clipboard"));
   console.log(keyValue("/cmd <list|add|remove>", "Manage custom command shortcuts"));
   console.log(keyValue("/exit", "End session"));
+
+  if (aiConfig && aiConfig.CUSTOM_COMMANDS) {
+    const custom = aiConfig.CUSTOM_COMMANDS;
+    const entries = Object.entries(custom);
+    if (entries.length > 0) {
+      console.log("");
+      console.log(colors.brand("  ⚡ CUSTOM SHORTCUTS"));
+      console.log(separator("─"));
+      for (const [cmd, template] of entries) {
+        console.log(keyValue(cmd, `Shortcut for: "${template}"`));
+      }
+    }
+  }
   console.log("");
 }
 

@@ -317,45 +317,22 @@ async function handleAsk(prompt, opts) {
       }
 
       if (fileWrites.length > 0) {
-        const { createInterface } = await import("node:readline");
         const { resolve, dirname } = await import("node:path");
         const { mkdir, writeFile } = await import("node:fs/promises");
         
-        const rl = createInterface({
-          input: process.stdin,
-          output: process.stdout,
-        });
-
         for (const fileWrite of fileWrites) {
-          const defaultResolvedPath = resolve(fileWrite.path);
+          const finalPath = resolve(fileWrite.path);
           console.log("");
-          console.log(label.system + " " + colors.warning(`AI requested local file write:`));
-          console.log(`  Suggested Path: ${colors.accent(defaultResolvedPath)}`);
-          console.log(`  Size:           ${colors.muted(fileWrite.content.length + " bytes")}`);
-          
-          const targetInput = await new Promise((resolvePath) => {
-            rl.question("  " + colors.accent("? ") + colors.text("Enter path to write (or 'n' to skip, press Enter for default): "), (answer) => {
-              resolvePath(answer.trim());
-            });
-          });
-          
-          const isSkip = targetInput.toLowerCase() === "n" || targetInput.toLowerCase() === "no" || targetInput.toLowerCase() === "skip" || targetInput.toLowerCase() === "cancel";
-          
-          if (!isSkip) {
-            const finalPath = targetInput === "" ? defaultResolvedPath : resolve(targetInput);
-            try {
-              const dir = dirname(finalPath);
-              await mkdir(dir, { recursive: true });
-              await writeFile(finalPath, fileWrite.content, "utf-8");
-              console.log("  " + colors.success(`✓ File created successfully at: ${finalPath}\n`));
-            } catch (err) {
-              console.log("  " + colors.danger(`✗ Write failed: ${err.message}\n`));
-            }
-          } else {
-            console.log("  " + colors.muted("Skipped.\n"));
+          console.log(label.system + " " + colors.warning(`Auto-Writing File: ${colors.accent(finalPath)} (${fileWrite.content.length} bytes)`));
+          try {
+            const dir = dirname(finalPath);
+            await mkdir(dir, { recursive: true });
+            await writeFile(finalPath, fileWrite.content, "utf-8");
+            console.log("  " + colors.success(`✓ File created successfully!\n`));
+          } catch (err) {
+            console.log("  " + colors.danger(`✗ Write failed: ${err.message}\n`));
           }
         }
-        rl.close();
       }
     }
   } catch (err) {

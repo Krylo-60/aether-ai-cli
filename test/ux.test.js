@@ -3,6 +3,7 @@ import assert from "node:assert";
 import { separator, clearStreamedText, getActiveTheme, setTheme, getThemesList } from "../src/ui/theme.js";
 import { createSpinner } from "../src/ui/spinner.js";
 import { routePrompt } from "../src/ai/router.js";
+import { getModeByName, MODES } from "../src/modes.js";
 
 const originalFetch = globalThis.fetch;
 
@@ -124,5 +125,27 @@ test("Cyberpunk UX and Streaming Suite", async (t) => {
 
     // Reset back to cyberpunk
     setTheme("cyberpunk");
+  });
+
+  await t.test("Reasoning modes should be loaded correctly including codex and cloude-code", () => {
+    const synthesis = getModeByName("synthesis");
+    assert.strictEqual(synthesis.name, "synthesis");
+
+    const codex = getModeByName("codex");
+    assert.strictEqual(codex.name, "codex");
+    assert.ok(codex.systemPrompt.includes("OpenAI Codex mode"));
+
+    const cloudeCode = getModeByName("cloude-code");
+    assert.strictEqual(cloudeCode.name, "cloude-code");
+    assert.ok(cloudeCode.systemPrompt.includes("Claude Code mode"));
+
+    const claudeCode = getModeByName("claude-code");
+    assert.strictEqual(claudeCode.name, "cloude-code");
+
+    const caseCheck = getModeByName("  CoDeX  ");
+    assert.strictEqual(caseCheck.name, "codex");
+
+    const unknown = getModeByName("nonexistent-mode");
+    assert.strictEqual(unknown, null);
   });
 });

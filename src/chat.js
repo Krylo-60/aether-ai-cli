@@ -160,7 +160,7 @@ export async function startChat(options = {}) {
     // Sub-arguments autocomplete on /mode
     if (line.startsWith("/mode ")) {
       const query = line.slice(6).toLowerCase();
-      const modesList = ["synthesis", "research", "architect", "titan"];
+      const modesList = Object.keys(MODES);
       const hits = modesList
         .filter((m) => m.startsWith(query))
         .map((m) => `/mode ${m}`);
@@ -524,7 +524,7 @@ function showHelp(aiConfig) {
   console.log("");
   console.log(keyValue("/", "Show this help menu"));
   console.log(keyValue("/help", "Show this help menu"));
-  console.log(keyValue("/mode <name>", "Switch mode (synthesis, research, architect, titan)"));
+  console.log(keyValue("/mode <name>", "Switch mode (" + Object.keys(MODES).join(", ") + ")"));
   console.log(keyValue("/modes", "List all modes with signal metrics"));
   console.log(keyValue("/theme <name>", "Switch visual theme (cyberpunk, matrix, synthwave, crimson)"));
   console.log(keyValue("/themes", "List available visual themes"));
@@ -558,13 +558,13 @@ function showHelp(aiConfig) {
 function handleModeSwitch(args, ctx) {
   const modeName = args[0];
   if (!modeName) {
-    console.log("\n" + label.mode + " " + colors.warning("Usage: /mode <synthesis|research|architect|titan>\n"));
+    console.log("\n" + label.mode + " " + colors.warning("Usage: /mode <" + Object.keys(MODES).join("|") + ">\n"));
     return;
   }
 
   const newMode = getModeByName(modeName);
   if (!newMode) {
-    console.log("\n" + label.mode + " " + colors.danger(`Unknown mode: "${modeName}".`) + " " + colors.muted("Available: synthesis, research, architect, titan\n"));
+    console.log("\n" + label.mode + " " + colors.danger(`Unknown mode: "${modeName}".`) + " " + colors.muted("Available: " + Object.keys(MODES).join(", ") + "\n"));
     return;
   }
 

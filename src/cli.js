@@ -68,7 +68,7 @@ export function createCLI(argv) {
   program
     .command("chat")
     .description("Start an interactive chat session")
-    .option("-m, --mode <mode>", "Reasoning mode (synthesis, research, architect, titan)", DEFAULT_MODE)
+    .option("-m, --mode <mode>", `Reasoning mode (${Object.keys(MODES).filter(m => m !== "claude-code").join(", ")})`, DEFAULT_MODE)
     .option("-p, --provider <provider>", "Preferred AI provider (openai, groq, google, etc.)")
     .action(async (opts) => {
       await startChat({ mode: opts.mode, preferredProvider: opts.provider });
@@ -281,7 +281,11 @@ async function handleAsk(prompt, opts) {
       if (result.provider === "local" || result.provider === "krylo-fallback") {
         console.log(colors.text("  " + result.text.split("\n").join("\n  ")));
       } else {
-        const rendered = getMarked().parse(result.text);
+        let displayText = result.text;
+        const cleanedText = displayText.replace(/\[WRITE_FILE:\s*([^\n\]]+)\][\s\S]*?\[END_WRITE\]/g, (match, p1) => {
+          return `\n\n${colors.brand("⚡ [File creation request: " + p1 + "]")}\n\n`;
+        });
+        const rendered = getMarked().parse(cleanedText);
         console.log(rendered);
       }
 
@@ -303,6 +307,56 @@ async function handleAsk(prompt, opts) {
         colors.dim(` • ${elapsedSec}s${speedText}`)
       );
       console.log("");
+      
+      // Parse file write blocks
+      const writeRegex = /\[WRITE_FILE:\s*([^\n\]]+)\]\n([\s\S]*?)\n\[END_WRITE\]/g;
+      let match;
+      const fileWrites = [];
+      while ((match = writeRegex.exec(result.text)) !== null) {
+        fileWrites.push({ path: match[1].trim(), content: match[2] });
+      }
+
+      if (fileWrites.length > 0) {
+        const { createInterface } = await import("node:readline");
+        const { resolve, dirname } = await import("node:path");
+        const { mkdir, writeFile } = await import("node:fs/promises");
+        
+        const rl = createInterface({
+          input: process.stdin,
+          output: process.stdout,
+        });
+
+        for (const fileWrite of fileWrites) {
+          const defaultResolvedPath = resolve(fileWrite.path);
+          console.log("");
+          console.log(label.system + " " + colors.warning(`AI requested local file write:`));
+          console.log(`  Suggested Path: ${colors.accent(defaultResolvedPath)}`);
+          console.log(`  Size:           ${colors.muted(fileWrite.content.length + " bytes")}`);
+          
+          const targetInput = await new Promise((resolvePath) => {
+            rl.question("  " + colors.accent("? ") + colors.text("Enter path to write (or 'n' to skip, press Enter for default): "), (answer) => {
+              resolvePath(answer.trim());
+            });
+          });
+          
+          const isSkip = targetInput.toLowerCase() === "n" || targetInput.toLowerCase() === "no" || targetInput.toLowerCase() === "skip" || targetInput.toLowerCase() === "cancel";
+          
+          if (!isSkip) {
+            const finalPath = targetInput === "" ? defaultResolvedPath : resolve(targetInput);
+            try {
+              const dir = dirname(finalPath);
+              await mkdir(dir, { recursive: true });
+              await writeFile(finalPath, fileWrite.content, "utf-8");
+              console.log("  " + colors.success(`✓ File created successfully at: ${finalPath}\n`));
+            } catch (err) {
+              console.log("  " + colors.danger(`✗ Write failed: ${err.message}\n`));
+            }
+          } else {
+            console.log("  " + colors.muted("Skipped.\n"));
+          }
+        }
+        rl.close();
+      }
     }
   } catch (err) {
     spinner.fail("Request failed");

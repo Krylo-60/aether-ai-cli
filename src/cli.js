@@ -3,6 +3,9 @@
 // Universal AI Gateway — Supports 13+ providers
 // ═══════════════════════════════════════════════════════════
 
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 import { Command } from "commander";
 import chalk from "chalk";
 import { Marked } from "marked";
@@ -50,7 +53,10 @@ const getMarked = () => new Marked(markedTerminal({
   hr: (h) => colors.dim(h),
 }));
 
-const VERSION = "1.0.0";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const pkg = JSON.parse(readFileSync(join(__dirname, "../package.json"), "utf8"));
+const VERSION = pkg.version;
 
 /**
  * Sets up and runs the Aether CLI.

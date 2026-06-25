@@ -1,6 +1,12 @@
 from setuptools import setup, find_packages
 import os
 import shutil
+import json
+
+# Read version from package.json
+with open('package.json', 'r', encoding='utf-8') as f:
+    pkg_data = json.load(f)
+version = pkg_data.get('version', '1.0.0')
 
 # Copy Node project files into aether_pip/node_project for clean packaging
 dest_dir = os.path.join('aether_pip', 'node_project')
@@ -25,7 +31,7 @@ def package_files(directory):
 
 setup(
     name="aether-ai-cli",
-    version="1.0.0",
+    version=version,
     author="Krishiv PB",
     author_email="krylobloxyt@gmail.com",
     description="Aether Core AI v110 — Universal AI Gateway CLI (Python Wrapper)",

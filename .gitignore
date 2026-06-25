@@ -5,3 +5,9 @@ node_modules/
 .DS_Store
 Thumbs.db
 .agents/
+
+# Python build and package assets
+build/
+dist/
+*.egg-info/
+aether_pip/node_project/

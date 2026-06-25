@@ -35,6 +35,12 @@
 - 🔐 **Your Keys, Your Control** — API keys stored locally on YOUR machine, never transmitted anywhere
 - 📤 **Export Conversations** — Save full chat history as Markdown files
 - 🎨 **Cyberpunk UI** — Neon colors, ASCII art, signal bars, and mode badges
+- 🎭 **4 Color Themes** — Cyberpunk, Matrix, Synthwave, Crimson — switch with `/theme`
+- ⌨️ **Custom Commands** — Create reusable prompt shortcuts with `/cmd add`
+- 📝 **File Creation** — AI can create files on your system with path override prompts
+- 📊 **Live Telemetry** — Real-time response latency & tokens/sec in the status bar
+- 🎮 **Mini-Game** — Built-in mainframe hacking game (`/game`)
+- 📋 **Clipboard Copy** — Copy last response to clipboard with `/copy`
 
 ---
 
@@ -160,14 +166,23 @@ Inside interactive chat mode, use these slash commands:
 | Command | Description |
 |---------|-------------|
 | `/help` | Show all commands |
-| `/mode <name>` | Switch reasoning mode |
+| `/mode <name>` | Switch reasoning mode (synthesis, research, architect, titan) |
 | `/modes` | List all modes with signal bars |
-| `/attach <file>` | Attach a file for context |
+| `/theme <name>` | Switch visual theme (cyberpunk, matrix, synthwave, crimson) |
+| `/themes` | List available color themes |
+| `/attach <file>` | Attach a file for context (supports Tab autocomplete!) |
 | `/files` | List attached files |
-| `/clear` | Remove attached files |
+| `/clear` | Clear terminal screen |
 | `/providers` | Show active providers |
 | `/export` | Export chat to Markdown |
-| `/status` | Session status |
+| `/copy` | Copy last response to clipboard |
+| `/write <file>` | Extract last code block and save to file |
+| `/cmd list` | List custom command shortcuts |
+| `/cmd add <name> <template>` | Create a custom command shortcut |
+| `/cmd remove <name>` | Delete a custom command |
+| `/game` | Start the mainframe hacking mini-game |
+| `/status` | Session status & telemetry |
+| `/history-clear` | Clear saved chat history |
 | `/exit` | End session |
 
 ---

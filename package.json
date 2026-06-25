@@ -1,10 +1,10 @@
 {
-  "name": "@krylo-60/aether-ai-cli",
+  "name": "@krishivpb60/aether-ai-cli",
   "version": "1.0.0",
   "description": "Aether Core AI — A cyberpunk command-line AI assistant with multi-mode reasoning, 12-node failover mesh, file context injection, and offline fallbacks.",
   "main": "src/cli.js",
   "bin": {
-    "aether": "./bin/aether.js"
+    "aether": "bin/aether.js"
   },
   "type": "module",
   "scripts": {
@@ -31,7 +31,6 @@
   },
   "homepage": "https://github.com/Krylo-60/aether-ai-cli#readme",
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com",
     "access": "public"
   },
   "engines": {

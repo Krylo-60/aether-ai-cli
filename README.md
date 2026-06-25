@@ -2,7 +2,7 @@
 
 > ⚡ **Universal AI Gateway** — 13+ providers, free & paid models, cyberpunk terminal
 
-[![npm version](https://img.shields.io/npm/v/@krylo-60/aether-ai-cli.svg)](https://www.npmjs.com/package/@krylo-60/aether-ai-cli)
+[![npm version](https://img.shields.io/npm/v/@krishivpb60/aether-ai-cli.svg)](https://www.npmjs.com/package/@krishivpb60/aether-ai-cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-cyan.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/Node.js-≥18.0.0-green.svg)](https://nodejs.org)
 
@@ -43,13 +43,13 @@
 ### Install globally
 
 ```bash
-npm install -g @krylo-60/aether-ai-cli
+npm install -g @krishivpb60/aether-ai-cli
 ```
 
 ### Or run directly with npx
 
 ```bash
-npx @krylo-60/aether-ai-cli chat
+npx @krishivpb60/aether-ai-cli chat
 ```
 
 ### Setup (Interactive Wizard)

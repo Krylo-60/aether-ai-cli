@@ -4,22 +4,27 @@ import shutil
 import json
 
 # Read version from package.json
-with open('package.json', 'r', encoding='utf-8') as f:
+pkg_json_path = 'package.json'
+if not os.path.exists(pkg_json_path):
+    pkg_json_path = os.path.join('aether_pip', 'node_project', 'package.json')
+
+with open(pkg_json_path, 'r', encoding='utf-8') as f:
     pkg_data = json.load(f)
 version = pkg_data.get('version', '1.0.0')
 
 # Copy Node project files into aether_pip/node_project for clean packaging
-dest_dir = os.path.join('aether_pip', 'node_project')
-if os.path.exists(dest_dir):
-    shutil.rmtree(dest_dir)
-os.makedirs(dest_dir)
+if os.path.exists('bin') and os.path.exists('src'):
+    dest_dir = os.path.join('aether_pip', 'node_project')
+    if os.path.exists(dest_dir):
+        shutil.rmtree(dest_dir)
+    os.makedirs(dest_dir)
 
-# Copy directories
-shutil.copytree('bin', os.path.join(dest_dir, 'bin'))
-shutil.copytree('src', os.path.join(dest_dir, 'src'))
-shutil.copyfile('package.json', os.path.join(dest_dir, 'package.json'))
-if os.path.exists('package-lock.json'):
-    shutil.copyfile('package-lock.json', os.path.join(dest_dir, 'package-lock.json'))
+    # Copy directories
+    shutil.copytree('bin', os.path.join(dest_dir, 'bin'))
+    shutil.copytree('src', os.path.join(dest_dir, 'src'))
+    shutil.copyfile('package.json', os.path.join(dest_dir, 'package.json'))
+    if os.path.exists('package-lock.json'):
+        shutil.copyfile('package-lock.json', os.path.join(dest_dir, 'package-lock.json'))
 
 def package_files(directory):
     paths = []

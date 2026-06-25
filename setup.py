@@ -30,7 +30,7 @@ def package_files(directory):
     return paths
 
 setup(
-    name="aether-ai-cli",
+    name="aether-ai-agent-cli",
     version=version,
     author="Krishiv PB",
     author_email="krylobloxyt@gmail.com",

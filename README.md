@@ -46,7 +46,7 @@
 
 ## 🚀 Quick Start
 
-### Install globally
+### Install globally via npm
 
 ```bash
 npm install -g @krishivpb60/aether-ai-cli
@@ -56,6 +56,14 @@ npm install -g @krishivpb60/aether-ai-cli
 
 ```bash
 npx @krishivpb60/aether-ai-cli chat
+```
+
+### Or install via pip (Python wrapper)
+
+```bash
+pip install aether-ai-agent-cli
+# Run via terminal:
+aether-pip chat
 ```
 
 ### Setup (Interactive Wizard)

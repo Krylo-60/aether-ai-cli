@@ -46,8 +46,8 @@ const getMarked = () => new Marked(markedTerminal({
   showSectionPrefix: false,
   code: (c) => colors.orange(c),
   codespan: (c) => colors.accent3(c),
-  heading: (h) => colors.accent(h).bold,
-  strong: (s) => colors.magenta(s).bold,
+  heading: (h) => colors.accent.bold(h),
+  strong: (s) => colors.magenta.bold(s),
   em: chalk.italic,
   hr: (h) => colors.dim(h),
 }));

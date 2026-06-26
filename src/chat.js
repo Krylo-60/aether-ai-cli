@@ -45,6 +45,8 @@ import { MODES, DEFAULT_MODE, getModeByName } from "./modes.js";
 import { parseFile, formatContext } from "./file-parser.js";
 import { runMainframeHack } from "./ai/fallback.js";
 import { AGENT_INSTRUCTIONS } from "./agent.js";
+import { checkForUpdates } from "./updater.js";
+
 
 // Configure marked dynamically for terminal output
 const getMarked = () => new Marked(markedTerminal({
@@ -66,6 +68,9 @@ const getMarked = () => new Marked(markedTerminal({
 export async function startChat(options = {}) {
   // Load AI config
   const aiConfig = await getAIConfig();
+  
+  // Run update check
+  await checkForUpdates();
   
   // Set theme from configuration
   const theme = aiConfig.THEME || "cyberpunk";

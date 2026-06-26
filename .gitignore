@@ -11,3 +11,5 @@ build/
 dist/
 *.egg-info/
 aether_pip/node_project/
+.npmrc
+

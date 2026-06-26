@@ -35,6 +35,7 @@ def main():
 
     try:
         # Run node aether.js passing all command line arguments
+        os.environ["AETHER_PACKAGER"] = "pip"
         cmd = ["node", aether_js] + sys.argv[1:]
         result = subprocess.run(cmd, check=False)
         sys.exit(result.returncode)

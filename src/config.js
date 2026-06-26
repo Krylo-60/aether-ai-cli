@@ -176,7 +176,7 @@ export function isValidConfigKey(key) {
   const allowedSpecialKeys = [
     "THEME", "CUSTOM_COMMANDS", "AUTOPILOT", 
     "AUTO_UPDATE", "SHOW_HIGHLIGHTS", "LAST_UPDATE_CHECK", "LAST_NOTIFIED_VERSION",
-    "SHOW_TOKENS"
+    "SHOW_TOKENS", "DIAGNOSE_CMD"
   ];
   if (upper.endsWith("_API_KEY") || upper.endsWith("_API_KEYS") || upper.endsWith("_MODEL") || allowedSpecialKeys.includes(upper)) {
     return true;

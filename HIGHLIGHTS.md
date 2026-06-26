@@ -1,3 +1,13 @@
+# Aether CLI v1.3.3 Highlights
+- **Codex & Claude Code Slash Commands**: Added 7 new advanced developer experience (DX) commands:
+  - `/review`: Analyze staged/unstaged git changes and stream an AI-powered code review.
+  - `/diagnose [cmd]`: Run tests/builds and automatically debug any errors.
+  - `/explain <file>`: Explains design flow and patterns in code.
+  - `/refactor <file>`: Rewrites a target file to optimize it.
+  - `/bug <file>`: Scans a file to detect logical edge case failures.
+  - `/doc <file>`: Automatically writes documentation, inline comments, or JSDoc.
+  - `/translate <file> <lang>`: AI-translates file code into another target language.
+
 # Aether CLI v1.3.2 Highlights
 - **Manual Updater `/update`**: Added a new slash command `/update` to manually check the registry and force-upgrade Aether CLI to the latest version immediately, bypassing the 24-hour cache throttle.
 

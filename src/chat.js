@@ -47,6 +47,7 @@ import { runMainframeHack } from "./ai/fallback.js";
 import { AGENT_INSTRUCTIONS } from "./agent.js";
 import { checkForUpdates } from "./updater.js";
 import { getSessionTokenStats, getBreakdownByModel, resetSessionTokenStats } from "./ai/tokens.js";
+import { getGitDiff } from "./git.js";
 
 
 
@@ -136,7 +137,8 @@ export async function startChat(options = {}) {
       "/help", "/mode", "/modes", "/attach", "/files", "/clear",
       "/providers", "/export", "/status", "/copy", "/exit", "/quit",
       "/theme", "/themes", "/history-clear", "/game", "/abort", "/cmd", "/write",
-      "/commit", "/run", "/history", "/autopilot", "/tokens", "/update"
+      "/commit", "/run", "/history", "/autopilot", "/tokens", "/update",
+      "/review", "/diagnose", "/explain", "/refactor", "/bug", "/doc", "/translate"
     ];
     const customCmds = aiConfig.CUSTOM_COMMANDS || {};
     const commands = [...builtIn, ...Object.keys(customCmds)];
@@ -424,7 +426,8 @@ export async function startChat(options = {}) {
         "/providers", "/export", "/status", "/copy", "/exit", "/quit",
         "/theme", "/themes", "/history-clear", "/game", "/abort", "/cmd",
         "/guess", "/write", "/commit", "/run", "/history", "/autopilot", "/tokens",
-        "/update"
+        "/update", "/review", "/diagnose", "/explain", "/refactor", "/bug", "/doc",
+        "/translate"
       ];
       
       const customCmds = aiConfig.CUSTOM_COMMANDS || {};
@@ -519,6 +522,22 @@ async function handleCommand(input, ctx) {
       console.log("\n" + label.system + " " + colors.muted("Checking registry for updates..."));
       await checkForUpdates(true);
       console.log("");
+      break;
+
+    case "/review":
+      await handleReviewCommand(ctx);
+      break;
+
+    case "/diagnose":
+      await handleDiagnoseCommand(args, ctx);
+      break;
+
+    case "/explain":
+    case "/refactor":
+    case "/bug":
+    case "/doc":
+    case "/translate":
+      await handleFileAICommand(cmd, args, ctx);
       break;
 
     case "/theme":
@@ -620,6 +639,13 @@ function showHelp(aiConfig) {
   console.log(keyValue("/write <filename>", "Extract last code block and save to file"));
   console.log(keyValue("/commit", "Generate conventional commit message and commit changes"));
   console.log(keyValue("/run <command>", "Execute a shell command interactively"));
+  console.log(keyValue("/review", "Run git diff and stream an AI code review"));
+  console.log(keyValue("/diagnose [cmd]", "Run build/tests and AI-debug any errors"));
+  console.log(keyValue("/explain <file>", "AI-explain the design and logic of a file"));
+  console.log(keyValue("/refactor <file>", "AI-refactor the code of a target file"));
+  console.log(keyValue("/bug <file>", "AI-audit a file to find potential logic bugs"));
+  console.log(keyValue("/doc <file>", "AI-generate documentation/docstrings for a file"));
+  console.log(keyValue("/translate <file> <lang>", "AI-translate code of a file to another language"));
   console.log(keyValue("/exit", "End session"));
 
   if (aiConfig && aiConfig.CUSTOM_COMMANDS) {
@@ -1401,4 +1427,191 @@ async function handleTokensDisplay(ctx) {
   console.log("  " + colors.accent("Total Exchanges:") + colors.text(` ${stats.exchanges}`));
   console.log("  " + colors.accent("Total Tokens:") + colors.text(`    Prompt: ${stats.prompt.toLocaleString()} | Completion: ${stats.completion.toLocaleString()} | Sum: `) + colors.brand.bold(stats.total.toLocaleString()));
   console.log(separator("━") + "\n");
+}
+
+/**
+ * Streams an AI query prompt and prints telemetry details at the end.
+ */
+async function executeAISpecialCommand(prompt, specialLabel, ctx) {
+  const systemPrompt = ctx.currentMode.systemPrompt + "\n" + AGENT_INSTRUCTIONS;
+  let hasStarted = false;
+  let responseText = "";
+  const queryStartTime = Date.now();
+  let firstTokenTime = 0;
+
+  const onToken = (token) => {
+    if (!hasStarted) {
+      hasStarted = true;
+      firstTokenTime = Date.now();
+      process.stdout.write("\n" + label.aether + " " + colors.accent(specialLabel) + "\n" + separator("─") + "\n\n");
+    }
+    process.stdout.write(colors.success(token));
+    responseText += token;
+  };
+
+  const result = await routePrompt(prompt, systemPrompt, ctx.aiConfig, onToken);
+  console.log("\n");
+
+  const elapsedSec = ((Date.now() - queryStartTime) / 1000).toFixed(1);
+  let speedText = "";
+  if (firstTokenTime > 0) {
+    const streamElapsed = (Date.now() - firstTokenTime) / 1000;
+    if (streamElapsed > 0.05) {
+      const estimatedTokens = Math.max(1, Math.round(responseText.length / 4));
+      const tps = (estimatedTokens / streamElapsed).toFixed(1);
+      speedText = ` • ${tps} tok/s`;
+    }
+  }
+
+  const showTokens = ctx.aiConfig.SHOW_TOKENS !== "false";
+  let tokensText = "";
+  if (showTokens && result.usage) {
+    const { promptTokens, completionTokens } = result.usage;
+    tokensText = ` • ${promptTokens.toLocaleString()} in / ${completionTokens.toLocaleString()} out tokens`;
+  }
+
+  console.log(separator("─"));
+  console.log(
+    "  " + colors.dim(`Node ${result.node} • ${result.provider}`) +
+    (result.model ? colors.dim(` • ${result.model}`) : "") +
+    colors.dim(` • ${elapsedSec}s${speedText}`) +
+    colors.dim(tokensText)
+  );
+  console.log("");
+}
+
+/**
+ * Handler for the /review command (git diff analysis).
+ */
+async function handleReviewCommand(ctx) {
+  console.log("\n" + label.system + " " + colors.muted("Running git diff to fetch repository changes..."));
+  try {
+    const { diff, isStaged } = await getGitDiff();
+    if (!diff) {
+      console.log(label.system + " " + colors.success("✓ No changes detected in the repository to review.\n"));
+      return;
+    }
+
+    const specialLabel = `Reviewing ${isStaged ? "staged" : "unstaged"} changes...`;
+    const prompt = `Review the following git diff. Identify potential bugs, logical issues, security concerns, performance problems, and recommend optimization or code cleanup. Keep it concise, practical, and highly technical:\n\n\`\`\`diff\n${diff}\n\`\`\``;
+
+    await executeAISpecialCommand(prompt, specialLabel, ctx);
+  } catch (err) {
+    console.log(label.system + " " + colors.danger(`Error: ${err.message}\n`));
+  }
+}
+
+/**
+ * Handler for the /diagnose command (build & test diagnostics execution).
+ */
+async function handleDiagnoseCommand(args, ctx) {
+  const defaultCmd = ctx.aiConfig.DIAGNOSE_CMD || "npm test";
+  const cmdToRun = args.join(" ").trim() || defaultCmd;
+
+  console.log("\n" + label.system + " " + colors.muted(`Running diagnostics command: "${cmdToRun}"...`));
+  
+  const spinner = createSpinner("Executing diagnostics").start();
+  try {
+    const { exec } = await import("node:child_process");
+    const { promisify } = await import("node:util");
+    const execAsync = promisify(exec);
+    await execAsync(cmdToRun);
+    spinner.succeed("Diagnostics complete!");
+    console.log("\n" + label.system + " " + colors.success("✓ Diagnostics clean! Build and tests passed successfully.\n"));
+  } catch (err) {
+    spinner.fail("Diagnostics failed!");
+    
+    const output = (err.stdout || "") + "\n" + (err.stderr || "");
+    console.log("\n" + label.system + " " + colors.warning(`Diagnostics returned exit code ${err.code}.`));
+    console.log(colors.muted("Analyzing compiler/test output logs...\n"));
+
+    const prompt = `The diagnostics command "${cmdToRun}" failed with exit code ${err.code}. Analyze the following stdout and stderr logs to determine the root cause, identify the files/lines causing the failure, and provide a step-by-step resolution and debugging plan:\n\n\`\`\`\n${output.slice(0, 15000)}\n\`\`\``;
+
+    await executeAISpecialCommand(prompt, "Analyzing diagnostics logs...", ctx);
+  }
+}
+
+/**
+ * Handler for file analysis commands: /explain, /refactor, /bug, /doc, /translate.
+ */
+async function handleFileAICommand(cmdName, args, ctx) {
+  const filePath = args[0];
+  if (!filePath) {
+    console.log("\n" + label.system + " " + colors.warning(`Usage: ${cmdName} <file_path>\n`));
+    return;
+  }
+
+  // Resolve path
+  const resolvedPath = resolve(process.cwd(), filePath);
+  
+  // Verify path is inside the workspace
+  const { isInsideWorkspace } = await import("./agent.js");
+  if (!isInsideWorkspace(resolvedPath)) {
+    console.log("\n" + label.system + " " + colors.danger("Error: Path is outside the current workspace sandbox.\n"));
+    return;
+  }
+
+  if (!existsSync(resolvedPath)) {
+    console.log("\n" + label.system + " " + colors.danger(`Error: File does not exist at "${filePath}"\n`));
+    return;
+  }
+
+  const stat = statSync(resolvedPath);
+  if (stat.isDirectory()) {
+    console.log("\n" + label.system + " " + colors.danger(`Error: "${filePath}" is a directory. File path required.\n`));
+    return;
+  }
+
+  if (stat.size > 150 * 1024) { // 150KB limit
+    console.log("\n" + label.system + " " + colors.warning(`Warning: File "${filePath}" is too large (${Math.round(stat.size / 1024)}KB). Limits are 150KB to protect context limit.\n`));
+    return;
+  }
+
+  // Read file content
+  let content;
+  try {
+    const { parseFile } = await import("./file-parser.js");
+    const parsed = await parseFile(resolvedPath);
+    content = parsed.content;
+  } catch (err) {
+    console.log("\n" + label.system + " " + colors.danger(`Error parsing file: ${err.message}\n`));
+    return;
+  }
+
+  let prompt = "";
+  let labelText = "";
+
+  switch (cmdName.toLowerCase()) {
+    case "/explain":
+      labelText = `Explaining ${filePath}...`;
+      prompt = `Explain the architecture, design patterns, logic flow, and purpose of the following code. Be clear, technical, and structured:\n\n\`\`\`\n${content}\n\`\`\``;
+      break;
+    case "/refactor":
+      labelText = `Refactoring ${filePath}...`;
+      prompt = `Suggest refactoring improvements for the following code. Focus on clean code design principles, optimization, readability, reducing complexity, and fixing potential logic bugs. Return both the refactored code block and explanations:\n\n\`\`\`\n${content}\n\`\`\``;
+      break;
+    case "/bug":
+      labelText = `Auditing bugs in ${filePath}...`;
+      prompt = `Perform a thorough static analysis and code review of the following code. Identify potential logical bugs, race conditions, edge case failures, performance bottlenecks, and security hazards. Suggest fixes:\n\n\`\`\`\n${content}\n\`\`\``;
+      break;
+    case "/doc":
+      labelText = `Generating documentation for ${filePath}...`;
+      prompt = `Generate comprehensive API documentation, JSDoc/docstrings, and comments for the following code. Ensure code parameters, return values, and types are documented:\n\n\`\`\`\n${content}\n\`\`\``;
+      break;
+    case "/translate":
+      const targetLang = args[1];
+      if (!targetLang) {
+        console.log("\n" + label.system + " " + colors.warning(`Usage: /translate <file_path> <target_language>\n`));
+        return;
+      }
+      labelText = `Translating ${filePath} to ${targetLang}...`;
+      prompt = `Translate the following code into ${targetLang}. Return a clean, syntactically correct, and beautifully structured code block of the translated code:\n\n\`\`\`\n${content}\n\`\`\``;
+      break;
+  }
+
+  try {
+    await executeAISpecialCommand(prompt, labelText, ctx);
+  } catch (err) {
+    console.log("\n" + label.system + " " + colors.danger(`Error: ${err.message}\n`));
+  }
 }

@@ -1,3 +1,9 @@
+# Aether CLI v1.3.4 Highlights
+- **AI-Powered Workspace Search & Code Indexer (`/search`)**:
+  - Adds `/search <query>` slash command to scan all workspace text files for keyword matches, showing line numbers and code snippets.
+  - Supports `/search --ai <query>` to run a semantic search using the active AI reasoning model.
+  - Automatically ignores binaries, files exceeding 250KB, and build/dependency/git directories.
+
 # Aether CLI v1.3.3 Highlights
 - **Codex & Claude Code Slash Commands**: Added 7 new advanced developer experience (DX) commands:
   - `/review`: Analyze staged/unstaged git changes and stream an AI-powered code review.

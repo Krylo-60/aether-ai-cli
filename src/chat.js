@@ -138,7 +138,8 @@ export async function startChat(options = {}) {
       "/providers", "/export", "/status", "/copy", "/exit", "/quit",
       "/theme", "/themes", "/history-clear", "/game", "/abort", "/cmd", "/write",
       "/commit", "/run", "/history", "/autopilot", "/tokens", "/update",
-      "/review", "/diagnose", "/explain", "/refactor", "/bug", "/doc", "/translate"
+      "/review", "/diagnose", "/explain", "/refactor", "/bug", "/doc", "/translate",
+      "/search"
     ];
     const customCmds = aiConfig.CUSTOM_COMMANDS || {};
     const commands = [...builtIn, ...Object.keys(customCmds)];
@@ -427,7 +428,7 @@ export async function startChat(options = {}) {
         "/theme", "/themes", "/history-clear", "/game", "/abort", "/cmd",
         "/guess", "/write", "/commit", "/run", "/history", "/autopilot", "/tokens",
         "/update", "/review", "/diagnose", "/explain", "/refactor", "/bug", "/doc",
-        "/translate"
+        "/translate", "/search"
       ];
       
       const customCmds = aiConfig.CUSTOM_COMMANDS || {};
@@ -540,6 +541,10 @@ async function handleCommand(input, ctx) {
       await handleFileAICommand(cmd, args, ctx);
       break;
 
+    case "/search":
+      await handleSearchCommand(args, ctx);
+      break;
+
     case "/theme":
       await handleThemeSwitch(args);
       break;
@@ -646,6 +651,7 @@ function showHelp(aiConfig) {
   console.log(keyValue("/bug <file>", "AI-audit a file to find potential logic bugs"));
   console.log(keyValue("/doc <file>", "AI-generate documentation/docstrings for a file"));
   console.log(keyValue("/translate <file> <lang>", "AI-translate code of a file to another language"));
+  console.log(keyValue("/search <query>", "Find matches in code files (use --ai for semantic search)"));
   console.log(keyValue("/exit", "End session"));
 
   if (aiConfig && aiConfig.CUSTOM_COMMANDS) {
@@ -1614,4 +1620,73 @@ async function handleFileAICommand(cmdName, args, ctx) {
   } catch (err) {
     console.log("\n" + label.system + " " + colors.danger(`Error: ${err.message}\n`));
   }
+}
+
+/**
+ * Handler for the /search command (workspace file crawler and AI semantic finder).
+ */
+async function handleSearchCommand(args, ctx) {
+  const isAi = args[0] === "--ai";
+  const queryArgs = isAi ? args.slice(1) : args;
+  const query = queryArgs.join(" ").trim();
+
+  if (!query) {
+    console.log("\n" + label.system + " " + colors.warning("Usage: /search [--ai] <query_string>\n"));
+    return;
+  }
+
+  const { workspaceSearch, crawlDirectory } = await import("./search.js");
+
+  if (isAi) {
+    console.log("\n" + label.system + " " + colors.muted("Scanning workspace project tree for semantic search..."));
+    const files = crawlDirectory(process.cwd());
+    const { relative } = await import("node:path");
+    const relativePaths = files.map((f) => relative(process.cwd(), f).replace(/\\/g, "/"));
+    
+    // Construct semantic prompt
+    const prompt = `Here is the directory structure / file listing of the current workspace:\n\n${relativePaths.slice(0, 100).join("\n")}\n\nBased on this file listing, identify and explain where the following logic or system is implemented, listing the relevant files: ${query}`;
+    
+    await executeAISpecialCommand(prompt, `Semantic search: "${query}"`, ctx);
+    return;
+  }
+
+  console.log("\n" + label.system + " " + colors.muted(`Searching workspace for "${query}"...`));
+  const results = workspaceSearch(query);
+
+  if (results.length === 0) {
+    console.log("\n" + label.system + " " + colors.warning(`✓ No matches found for "${query}" in workspace.\n`));
+    return;
+  }
+
+  console.log("\n" + separator("━"));
+  console.log(colors.accent.bold(`  ★  WORKSPACE SEARCH RESULTS FOR "${query.toUpperCase()}"  ★`));
+  console.log(separator("─"));
+
+  // Print header
+  console.log(
+    colors.brand("  " + "File Path".padEnd(45) + "Line".padStart(6) + "   " + "Preview")
+  );
+  console.log(colors.dim("  " + "─".repeat(80)));
+
+  // Display matches (limit to top 50 to prevent terminal overflow)
+  const displayLimit = 50;
+  const visibleResults = results.slice(0, displayLimit);
+
+  for (const match of visibleResults) {
+    const truncatedPath = match.relativePath.length > 43 ? "..." + match.relativePath.slice(-40) : match.relativePath;
+    const truncatedLine = match.lineContent.length > 50 ? match.lineContent.slice(0, 47) + "..." : match.lineContent;
+    console.log(
+      "  " + colors.text(truncatedPath.padEnd(45)) +
+      colors.brand(match.lineNumber.toString().padStart(6)) +
+      "   " + colors.muted(truncatedLine)
+    );
+  }
+
+  console.log(separator("─"));
+  if (results.length > displayLimit) {
+    console.log("  " + colors.warning(`⚠ Showing first ${displayLimit} of ${results.length} total matches.`));
+  } else {
+    console.log("  " + colors.success(`✓ Found ${results.length} matches across the workspace.`));
+  }
+  console.log(separator("━") + "\n");
 }

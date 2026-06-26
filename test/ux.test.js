@@ -128,7 +128,7 @@ test("Cyberpunk UX and Streaming Suite", async (t) => {
     setTheme("cyberpunk");
   });
 
-  await t.test("Reasoning modes should be loaded correctly including codex and cloude-code", () => {
+  await t.test("Reasoning modes should be loaded correctly including codex and cloude-code redirection", () => {
     const synthesis = getModeByName("synthesis");
     assert.strictEqual(synthesis.name, "synthesis");
 
@@ -137,19 +137,18 @@ test("Cyberpunk UX and Streaming Suite", async (t) => {
     assert.ok(titan.systemPrompt.includes("fuses the absolute best capabilities of OpenAI Codex"));
     assert.ok(titan.systemPrompt.includes("Claude Code"));
 
+    // Deprecated codex and cloude-code modes should redirect to titan
     const codex = getModeByName("codex");
-    assert.strictEqual(codex.name, "codex");
-    assert.ok(codex.systemPrompt.includes("OpenAI Codex mode"));
+    assert.strictEqual(codex.name, "titan");
 
     const cloudeCode = getModeByName("cloude-code");
-    assert.strictEqual(cloudeCode.name, "cloude-code");
-    assert.ok(cloudeCode.systemPrompt.includes("Claude Code mode"));
+    assert.strictEqual(cloudeCode.name, "titan");
 
     const claudeCode = getModeByName("claude-code");
-    assert.strictEqual(claudeCode.name, "cloude-code");
+    assert.strictEqual(claudeCode.name, "titan");
 
     const caseCheck = getModeByName("  CoDeX  ");
-    assert.strictEqual(caseCheck.name, "codex");
+    assert.strictEqual(caseCheck.name, "titan");
 
     const unknown = getModeByName("nonexistent-mode");
     assert.strictEqual(unknown, null);

@@ -132,6 +132,11 @@ test("Cyberpunk UX and Streaming Suite", async (t) => {
     const synthesis = getModeByName("synthesis");
     assert.strictEqual(synthesis.name, "synthesis");
 
+    const titan = getModeByName("titan");
+    assert.strictEqual(titan.name, "titan");
+    assert.ok(titan.systemPrompt.includes("fuses the absolute best capabilities of OpenAI Codex"));
+    assert.ok(titan.systemPrompt.includes("Claude Code"));
+
     const codex = getModeByName("codex");
     assert.strictEqual(codex.name, "codex");
     assert.ok(codex.systemPrompt.includes("OpenAI Codex mode"));

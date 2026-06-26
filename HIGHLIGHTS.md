@@ -1,3 +1,8 @@
+# Aether CLI v1.3.0 Highlights
+- **Token Telemetry Tracker**: Real-time prompt and completion token statistics shown on every chat turn.
+- **Session Telemetry `/tokens`**: A new slash command displaying detailed model-by-model session token breakdowns and total exchange stats.
+- **Toggle Telemetry**: Enable or disable display using `aether config set SHOW_TOKENS false`.
+
 # Aether CLI v1.1.9 Highlights
 - **Node 18 Compatibility**: Resolves `ReadableStream` reference errors inside the Node 18 CI test runner.
 - **Auto-Updater**: Checks for updates once every 24 hours on launch and updates the CLI automatically.

@@ -1,6 +1,6 @@
 import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
-import { separator, clearStreamedText, StreamFilter, getActiveTheme, setTheme, getThemesList } from "../src/ui/theme.js";
+import { separator, clearStreamedText, StreamFilter, stripCodeFences, getActiveTheme, setTheme, getThemesList } from "../src/ui/theme.js";
 import { createSpinner } from "../src/ui/spinner.js";
 import { routePrompt } from "../src/ai/router.js";
 import { getModeByName, MODES } from "../src/modes.js";
@@ -166,5 +166,16 @@ test("Cyberpunk UX and Streaming Suite", async (t) => {
     assert.ok(output.includes("After block"));
     assert.ok(output.includes("File creation request: test.txt"));
     assert.ok(!output.includes("This content is hidden"));
+  });
+
+  await t.test("stripCodeFences should clean code blocks with backticks", () => {
+    const jsBlock = "```javascript\nconsole.log('hi');\n```";
+    assert.strictEqual(stripCodeFences(jsBlock), "console.log('hi');");
+
+    const htmlBlock = "```html\n<div>hello</div>\n```";
+    assert.strictEqual(stripCodeFences(htmlBlock), "<div>hello</div>");
+
+    const noFenceBlock = "console.log('hi');";
+    assert.strictEqual(stripCodeFences(noFenceBlock), "console.log('hi');");
   });
 });

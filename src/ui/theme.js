@@ -268,3 +268,24 @@ export function setTheme(themeName) {
 export function getThemesList() {
   return Object.keys(THEMES);
 }
+
+/**
+ * Strips markdown code block fences (```lang ... ```) from a string if present.
+ * @param {string} content - Raw content extracted from file write blocks
+ * @returns {string} Cleaned content
+ */
+export function stripCodeFences(content) {
+  let cleaned = content.trim();
+  if (cleaned.startsWith("```")) {
+    const firstNewline = cleaned.indexOf("\n");
+    if (firstNewline !== -1) {
+      cleaned = cleaned.slice(firstNewline + 1);
+    } else {
+      cleaned = cleaned.slice(3);
+    }
+    if (cleaned.endsWith("```")) {
+      cleaned = cleaned.slice(0, -3);
+    }
+  }
+  return cleaned.trim();
+}

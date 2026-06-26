@@ -19,6 +19,7 @@ import {
   bullet,
   clearStreamedText,
   StreamFilter,
+  stripCodeFences,
   getActiveTheme,
   setTheme,
   getThemesList,
@@ -328,7 +329,7 @@ async function handleAsk(prompt, opts) {
       let match;
       const fileWrites = [];
       while ((match = writeRegex.exec(result.text)) !== null) {
-        fileWrites.push({ path: match[1].trim(), content: match[2] });
+        fileWrites.push({ path: match[1].trim(), content: stripCodeFences(match[2]) });
       }
 
       if (fileWrites.length > 0) {

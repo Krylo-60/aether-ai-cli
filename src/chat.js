@@ -2267,13 +2267,24 @@ export async function handleMicInput(ctx) {
 
   const stdin = process.stdin;
   const wasRaw = stdin.isRaw;
-  stdin.setRawMode(true);
+  const isTTY = typeof stdin.setRawMode === "function";
+
+  if (isTTY) {
+    stdin.setRawMode(true);
+  }
   stdin.resume();
   stdin.setEncoding("utf8");
 
   let aborted = false;
   await new Promise((resolve) => {
     function onData(chunk) {
+      if (!isTTY) {
+        if (chunk.includes("\n") || chunk.includes("\r")) {
+          stdin.removeListener("data", onData);
+          resolve();
+        }
+        return;
+      }
       if (chunk === "\u0003") {
         aborted = true;
         stdin.removeListener("data", onData);
@@ -2288,7 +2299,9 @@ export async function handleMicInput(ctx) {
     stdin.on("data", onData);
   });
 
-  stdin.setRawMode(wasRaw);
+  if (isTTY) {
+    stdin.setRawMode(wasRaw);
+  }
   ctx.rl.resume();
 
   if (aborted) {

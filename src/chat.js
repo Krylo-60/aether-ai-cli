@@ -139,14 +139,16 @@ export async function startChat(options = {}) {
       "/theme", "/themes", "/history-clear", "/game", "/abort", "/cmd", "/write",
       "/commit", "/run", "/history", "/autopilot", "/tokens", "/update",
       "/review", "/diagnose", "/explain", "/refactor", "/bug", "/doc", "/translate",
-      "/search", "/git", "/dashboard"
+      "/search", "/git", "/dashboard", "/cd"
     ];
     const customCmds = aiConfig.CUSTOM_COMMANDS || {};
     const commands = [...builtIn, ...Object.keys(customCmds)];
 
-    // File path autocompletion on /attach
-    if (line.startsWith("/attach ")) {
-      const query = line.slice(8);
+    // File path autocompletion on /attach or /cd
+    if (line.startsWith("/attach ") || line.startsWith("/cd ")) {
+      const isCd = line.startsWith("/cd ");
+      const prefix = isCd ? "/cd " : "/attach ";
+      const query = line.slice(prefix.length);
       const lastSlash = Math.max(query.lastIndexOf("/"), query.lastIndexOf("\\"));
       let searchDir = ".";
       let searchPrefix = query;
@@ -169,8 +171,10 @@ export async function startChat(options = {}) {
               const fullPath = searchDir === "." || searchDir === sep ? f : join(searchDir, f);
               const fullResolved = resolve(fullPath);
               const isDir = statSync(fullResolved).isDirectory();
-              return `/attach ${fullPath}${isDir ? "/" : ""}`;
-            });
+              if (isCd && !isDir) return null;
+              return `${prefix}${fullPath}${isDir ? "/" : ""}`;
+            })
+            .filter(Boolean);
           return [hits.length ? hits : [], line];
         }
       } catch (e) {
@@ -428,7 +432,7 @@ export async function startChat(options = {}) {
         "/theme", "/themes", "/history-clear", "/game", "/abort", "/cmd",
         "/guess", "/write", "/commit", "/run", "/history", "/autopilot", "/tokens",
         "/update", "/review", "/diagnose", "/explain", "/refactor", "/bug", "/doc",
-        "/translate", "/search", "/git", "/dashboard"
+        "/translate", "/search", "/git", "/dashboard", "/cd"
       ];
       
       const customCmds = aiConfig.CUSTOM_COMMANDS || {};
@@ -505,6 +509,10 @@ async function handleCommand(input, ctx) {
       // Actual screen clear & scrollback reset
       process.stdout.write("\x1b[2J\x1b[3J\x1b[H");
       showBanner(ctx.currentMode.name);
+      break;
+
+    case "/cd":
+      await handleCd(args, ctx);
       break;
 
     case "/export":
@@ -638,6 +646,7 @@ function showHelp(aiConfig) {
   console.log(keyValue("/themes", "List available visual themes"));
   console.log(keyValue("/attach <path>", "Attach a file for context (supports Tab path autocomplete!)"));
   console.log(keyValue("/files", "List attached files"));
+  console.log(keyValue("/cd <path>", "Change current working directory of this session (supports Tab path autocomplete!)"));
   console.log(keyValue("/clear", "Clear terminal screen and reprint banner"));
   console.log(keyValue("/providers", "Show active AI providers"));
   console.log(keyValue("/export", "Export conversation to file"));
@@ -716,6 +725,41 @@ function showModes() {
     const sig = mode.signal;
     console.log("  " + signalBar("RSN", sig.reasoning) + "  " + signalBar("CLR", sig.clarity) + "  " + signalBar("SIQ", sig.systemIQ) + "  " + signalBar("DLV", sig.delivery));
     console.log("");
+  }
+}
+
+async function handleCd(args, ctx) {
+  const { homedir } = await import("node:os");
+  if (args.length === 0) {
+    try {
+      const home = homedir();
+      process.chdir(home);
+      console.log("\n" + label.system + " " + colors.success(`Changed directory to: `) + colors.text(home) + "\n");
+    } catch (err) {
+      console.log("\n" + label.error + " " + colors.danger(`Failed to change directory: ${err.message}`) + "\n");
+    }
+    return;
+  }
+
+  const targetPath = args.join(" ").trim();
+  const resolvedPath = resolve(targetPath);
+
+  try {
+    if (!existsSync(resolvedPath)) {
+      console.log("\n" + label.error + " " + colors.danger(`Directory does not exist: ${targetPath}`) + "\n");
+      return;
+    }
+
+    const stat = statSync(resolvedPath);
+    if (!stat.isDirectory()) {
+      console.log("\n" + label.error + " " + colors.danger(`Path is not a directory: ${targetPath}`) + "\n");
+      return;
+    }
+
+    process.chdir(resolvedPath);
+    console.log("\n" + label.system + " " + colors.success(`Changed directory to: `) + colors.text(resolvedPath) + "\n");
+  } catch (err) {
+    console.log("\n" + label.error + " " + colors.danger(`Failed to change directory: ${err.message}`) + "\n");
   }
 }
 

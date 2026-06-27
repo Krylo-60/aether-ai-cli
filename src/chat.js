@@ -139,7 +139,7 @@ export async function startChat(options = {}) {
       "/theme", "/themes", "/history-clear", "/game", "/abort", "/cmd", "/write",
       "/commit", "/run", "/history", "/autopilot", "/tokens", "/update",
       "/review", "/diagnose", "/explain", "/refactor", "/bug", "/doc", "/translate",
-      "/search"
+      "/search", "/git", "/dashboard"
     ];
     const customCmds = aiConfig.CUSTOM_COMMANDS || {};
     const commands = [...builtIn, ...Object.keys(customCmds)];
@@ -428,7 +428,7 @@ export async function startChat(options = {}) {
         "/theme", "/themes", "/history-clear", "/game", "/abort", "/cmd",
         "/guess", "/write", "/commit", "/run", "/history", "/autopilot", "/tokens",
         "/update", "/review", "/diagnose", "/explain", "/refactor", "/bug", "/doc",
-        "/translate", "/search"
+        "/translate", "/search", "/git", "/dashboard"
       ];
       
       const customCmds = aiConfig.CUSTOM_COMMANDS || {};
@@ -601,6 +601,14 @@ async function handleCommand(input, ctx) {
       await handleAutopilotSwitch(args, ctx);
       break;
 
+    case "/git":
+      await handleGitTUI(ctx);
+      break;
+
+    case "/dashboard":
+      await handleDashboardCommand(ctx);
+      break;
+
     case "/tokens":
       await handleTokensDisplay(ctx);
       break;
@@ -635,7 +643,9 @@ function showHelp(aiConfig) {
   console.log(keyValue("/export", "Export conversation to file"));
   console.log(keyValue("/history", "List, switch, and resume past interactive chat sessions"));
   console.log(keyValue("/history-clear", "Clear saved persistent chat history"));
-  console.log(keyValue("/autopilot <mode>", "View or switch agent autopilot level (off, safe, workspace, machine)"));
+  console.log(keyValue("/autopilot <mode|debug [cmd]>", "View/switch autopilot level (off, safe, workspace, machine) or run autonomous debug loop"));
+  console.log(keyValue("/git", "Launch interactive Git branch tree, history, and file staging TUI"));
+  console.log(keyValue("/dashboard", "Spawn web-based local cyberpunk telemetry dashboard companion"));
   console.log(keyValue("/tokens", "View detailed session token usage and exchanges telemetry"));
   console.log(keyValue("/update", "Force check for updates and update Aether CLI manually"));
   console.log(keyValue("/game", "Start the local mainframe hacking mini-game"));
@@ -880,6 +890,10 @@ async function handleHistoryClear(history, rl) {
 
 async function handleAutopilotSwitch(args, ctx) {
   const setting = args[0]?.toLowerCase().trim();
+  if (setting === "debug") {
+    await handleAutopilotDebug(args.slice(1).join(" "), ctx);
+    return;
+  }
   if (!setting) {
     const current = (ctx.aiConfig.AUTOPILOT || "off").toUpperCase();
     console.log("\n" + label.system + " " + colors.brand("🤖 AUTOPILOT AGENT CONFIGURATION"));
@@ -1690,3 +1704,481 @@ async function handleSearchCommand(args, ctx) {
   }
   console.log(separator("━") + "\n");
 }
+
+/**
+ * Runs an autonomous, self-correcting debug/test feedback loop.
+ */
+export async function handleAutopilotDebug(cmdArg, ctx) {
+  const { exec } = await import("node:child_process");
+  const { promisify } = await import("node:util");
+  const execAsync = promisify(exec);
+
+  const testCmd = cmdArg.trim() || ctx.aiConfig.DIAGNOSE_CMD || "npm test";
+
+  console.log("\n" + label.system + " " + colors.brand("🤖 AUTOPILOT AUTONOMOUS DEBUG LOOP"));
+  console.log(separator("─"));
+  console.log(keyValue("  Diagnostic Command", testCmd));
+  console.log("");
+
+  console.log(colors.cyan(`⚡ Running initial diagnostics: ${testCmd}`));
+  
+  let stdout = "";
+  let stderr = "";
+  let passed = false;
+  let runErr = null;
+
+  try {
+    const res = await execAsync(testCmd);
+    stdout = res.stdout;
+    stderr = res.stderr;
+    passed = true;
+  } catch (err) {
+    stdout = err.stdout || "";
+    stderr = err.stderr || "";
+    runErr = err;
+    passed = false;
+  }
+
+  if (passed) {
+    console.log("\n" + label.system + " " + colors.success(`✓ Diagnostics passed successfully on the first run!\n`));
+    return;
+  }
+
+  console.log("\n" + label.system + " " + colors.danger(`❌ Initial run failed. Starting self-correcting debug loop...\n`));
+
+  let iteration = 1;
+  const maxIterations = 3;
+  let currentPrompt = `
+The test/build command "${testCmd}" failed.
+Here is the execution output:
+--- STDOUT ---
+${stdout}
+--- STDERR ---
+${stderr}
+--- ERROR ---
+${runErr ? runErr.message : ""}
+
+Please inspect the logs. If you need to read any files first to locate the bug, use the [READ_FILE: path] tool. If you know how to fix it, write the corrected files using [WRITE_FILE: path]...[END_WRITE].
+After you output your edits or read operations, we will apply them and re-run the command.
+`;
+
+  const debugSystemPrompt = `
+You are Aether Autopilot in Autonomous Debug Mode.
+A terminal command failed. Your goal is to analyze the error logs, read relevant source files to find the bug, write fixes to those files, and make sure the diagnostics pass.
+You can read files using: [READ_FILE: path/to/file]
+You can write files using:
+[WRITE_FILE: path/to/file]
+<new file content>
+[END_WRITE]
+
+Rules:
+- You must identify the root cause of the error.
+- First, read the relevant file(s) that might have caused the error.
+- Then, output the corrected file content.
+- Do not run any command blocks yourself. The environment will automatically re-run the test command for you after you output your modifications.
+- Keep your changes minimal and target only the bug.
+`;
+
+  while (iteration <= maxIterations) {
+    console.log(colors.accent(`\n🤖 [Autopilot Debug - Iteration ${iteration}/${maxIterations}]`));
+
+    const spinner = createSpinner(colors.muted(`Aether analyzing diagnostics & planning fixes...`));
+    spinner.start();
+
+    let streamedText = "";
+    let hasStartedStreaming = false;
+    const filter = new StreamFilter(process.stdout.write.bind(process.stdout));
+    const onToken = (token) => {
+      if (!hasStartedStreaming) {
+        hasStartedStreaming = true;
+        spinner.stop();
+      }
+      filter.write(token);
+      streamedText += token;
+    };
+
+    let result;
+    try {
+      result = await routePrompt(currentPrompt, debugSystemPrompt, ctx.aiConfig, onToken, ctx.history);
+      spinner.stop();
+      filter.flush();
+    } catch (routeErr) {
+      spinner.stop();
+      console.log("\n" + label.error + " " + colors.danger(`AI Routing Failed: ${routeErr.message}`));
+      break;
+    }
+
+    if (hasStartedStreaming) {
+      clearStreamedText(filter.filteredText);
+    }
+
+    console.log("");
+    console.log(label.aether + " " + providerBadge(result));
+    console.log(separator("─"));
+    console.log("");
+
+    const rendered = getMarked().parse(result.text);
+    console.log(rendered);
+    console.log(separator("─"));
+
+    ctx.history.push({ role: "user", content: currentPrompt, timestamp: new Date() });
+    ctx.history.push({
+      role: "assistant",
+      content: result.text,
+      provider: result.provider,
+      model: result.model,
+      node: result.node,
+      timestamp: new Date(),
+    });
+    await saveHistory(ctx.history, ctx.currentMode.name);
+
+    const { processAgentBlocks } = await import("./agent.js");
+    const toolResults = await processAgentBlocks(result.text, ctx.aiConfig, ctx.rl);
+
+    console.log(colors.cyan(`\n⚡ Re-running diagnostic command (Attempt ${iteration}/${maxIterations}): ${testCmd}`));
+
+    let testStdout = "";
+    let testStderr = "";
+    let testPassed = false;
+    let testRunErr = null;
+
+    try {
+      const res = await execAsync(testCmd);
+      testStdout = res.stdout;
+      testStderr = res.stderr;
+      testPassed = true;
+    } catch (err) {
+      testStdout = err.stdout || "";
+      testStderr = err.stderr || "";
+      testRunErr = err;
+      testPassed = false;
+    }
+
+    if (testPassed) {
+      console.log("\n" + label.system + " " + colors.success(`✓ Diagnostics passed successfully after autopilot debug corrections!\n`));
+      break;
+    } else {
+      console.log("\n" + label.system + " " + colors.danger(`❌ Diagnostic check still failing (Attempt ${iteration}/${maxIterations}).`));
+
+      let toolOutputs = "### Agent Tool Outputs:\n";
+      for (const tr of toolResults) {
+        if (tr.success) {
+          if (tr.tool === "READ_FILE") {
+            toolOutputs += `\n- READ_FILE "${tr.arg}" succeeded. Content:\n\`\`\`\n${tr.content}\n\`\`\`;`;
+          } else if (tr.tool === "WRITE_FILE") {
+            toolOutputs += `\n- WRITE_FILE "${tr.arg}" succeeded.`;
+          } else if (tr.tool === "SEARCH_WEB") {
+            const list = tr.results.map((r, i) => `${i+1}. [${r.title}](${r.url})\n   ${r.snippet}`).join("\n");
+            toolOutputs += `\n- SEARCH_WEB "${tr.arg}" succeeded. Results:\n${list}`;
+          }
+        } else {
+          toolOutputs += `\n- ${tr.tool} "${tr.arg}" failed: ${tr.error}`;
+        }
+      }
+
+      currentPrompt = `
+${toolOutputs}
+
+The test/build command "${testCmd}" is still failing.
+Here is the new execution output:
+--- STDOUT ---
+${testStdout}
+--- STDERR ---
+${testStderr}
+--- ERROR ---
+${testRunErr ? testRunErr.message : ""}
+
+Please analyze the remaining issues, read any other files you need, and apply further fixes.
+`;
+      iteration++;
+    }
+  }
+
+  if (iteration > maxIterations) {
+    console.log("\n" + label.system + " " + colors.warning(`⚠️ Max autopilot debug iterations reached. Review the diagnostics manually.\n`));
+  }
+}
+
+/**
+ * Renders the custom interactive Git TUI file stager and branch tree.
+ */
+export async function handleGitTUI(ctx) {
+  const { execSync } = await import("node:child_process");
+
+  try {
+    execSync("git rev-parse --is-inside-work-tree", { stdio: "ignore" });
+  } catch (e) {
+    console.log("\n" + label.error + " " + colors.danger("Not a git repository (or git is not installed).\n"));
+    return;
+  }
+
+  const stdin = process.stdin;
+  const stdout = process.stdout;
+  const wasRaw = stdin.isRaw;
+
+  stdin.setRawMode(true);
+  stdin.resume();
+  stdin.setEncoding("utf8");
+  stdout.write("\x1b[?25l"); // Hide cursor
+
+  let files = getGitStatusFiles();
+  let activeIndex = 0;
+  let renderedLines = 0;
+
+  function getGitStatusFiles() {
+    try {
+      const out = execSync("git status --porcelain", { encoding: "utf8" }).trim();
+      if (!out) return [];
+      return out.split("\n").map(line => {
+        const status = line.slice(0, 2);
+        const file = line.slice(3).trim();
+        const isStaged = status[0] !== " " && status[0] !== "?";
+        const isUnstaged = status[1] !== " " || status[0] === "?";
+        return {
+          path: file,
+          status,
+          staged: isStaged,
+          unstaged: isUnstaged
+        };
+      });
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function render() {
+    if (renderedLines > 0) {
+      stdout.write(`\x1b[${renderedLines}A\x1b[J`);
+    }
+
+    let lines = [];
+    lines.push(colors.brand("🌿 AETHER INTERACTIVE GIT TUI"));
+    lines.push(separator("─"));
+
+    let branchGraph = "";
+    try {
+      branchGraph = execSync("git log --graph --oneline --decorate -n 6", { encoding: "utf8" }).trim();
+    } catch (e) {
+      branchGraph = "  No git history found.";
+    }
+
+    lines.push(colors.accent("Commit Graph & History:"));
+    if (branchGraph) {
+      lines.push(branchGraph.split("\n").map(l => "  " + colors.muted(l)).join("\n"));
+    }
+    lines.push(separator("─"));
+
+    lines.push(colors.accent("Modified Files:"));
+
+    if (files.length === 0) {
+      lines.push(colors.success("  Clean working directory. Nothing to stage/commit."));
+    } else {
+      files.forEach((file, index) => {
+        const isActive = index === activeIndex;
+        const pointer = isActive ? colors.accent("❯ ") : "  ";
+        const checkbox = file.staged ? colors.success("[⬢] ") : colors.muted("[⬡] ");
+
+        let statusColor = colors.text;
+        if (file.status[0] === "?" || file.status[1] === "?") {
+          statusColor = colors.warning;
+        } else if (file.staged && !file.unstaged) {
+          statusColor = colors.success;
+        } else if (file.unstaged) {
+          statusColor = colors.danger;
+        }
+
+        const pathText = isActive ? colors.brand(file.path) : statusColor(file.path);
+        const statusText = colors.dim(`(${file.status})`);
+        lines.push(pointer + checkbox + pathText + " " + statusText);
+      });
+    }
+
+    lines.push(separator("─"));
+    lines.push(colors.muted("Hotkeys: [Space] Stage/Unstage | [D] Discard | [C] Commit | [P] Push | [Q/Esc] Quit"));
+
+    const outputStr = lines.join("\n") + "\n";
+    stdout.write(outputStr);
+    renderedLines = lines.length;
+  }
+
+  render();
+
+  return new Promise((resolve) => {
+    async function handleKey(key) {
+      console.log("TUI_KEY:", JSON.stringify(key));
+      if (key === "\u0003" || key === "q" || key === "Q" || key === "\u001b") {
+        cleanup();
+        resolve();
+        return;
+      }
+
+      if (key === "\u001b[A") { // Up Arrow
+        if (files.length > 0) {
+          activeIndex = (activeIndex - 1 + files.length) % files.length;
+          render();
+        }
+        return;
+      }
+      if (key === "\u001b[B") { // Down Arrow
+        if (files.length > 0) {
+          activeIndex = (activeIndex + 1) % files.length;
+          render();
+        }
+        return;
+      }
+
+      if (key === " ") { // Stage/Unstage
+        if (files.length > 0) {
+          const file = files[activeIndex];
+          try {
+            if (file.staged) {
+              execSync(`git restore --staged "${file.path}"`);
+            } else {
+              execSync(`git add "${file.path}"`);
+            }
+          } catch (err) {
+            // Ignore
+          }
+          files = getGitStatusFiles();
+          if (activeIndex >= files.length) {
+            activeIndex = Math.max(0, files.length - 1);
+          }
+          render();
+        }
+        return;
+      }
+
+      if (key === "d" || key === "D") { // Discard
+        if (files.length > 0) {
+          const file = files[activeIndex];
+          try {
+            if (file.status[0] === "?" || file.status[1] === "?") {
+              const fs = await import("node:fs");
+              fs.rmSync(file.path, { force: true });
+            } else {
+              execSync(`git restore "${file.path}"`);
+            }
+          } catch (err) {
+            // Ignore
+          }
+          files = getGitStatusFiles();
+          if (activeIndex >= files.length) {
+            activeIndex = Math.max(0, files.length - 1);
+          }
+          render();
+        }
+        return;
+      }
+
+      if (key === "c" || key === "C") { // Commit
+        cleanup();
+
+        const hasStaged = files.some(f => f.staged);
+        if (!hasStaged) {
+          console.log("\n" + label.warning + " " + colors.warning("No staged changes to commit. Stage some files first!\n"));
+          await new Promise(r => setTimeout(r, 1500));
+          
+          stdin.setRawMode(true);
+          stdin.resume();
+          stdout.write("\x1b[?25l");
+          renderedLines = 0;
+          files = getGitStatusFiles();
+          render();
+          return;
+        }
+
+        ctx.rl.pause();
+        const commitMsg = await new Promise((resMsg) => {
+          ctx.rl.question(
+            colors.accent("\n💬 Enter commit message: "),
+            resMsg
+          );
+        });
+        ctx.rl.resume();
+
+        if (commitMsg.trim()) {
+          try {
+            execSync(`git commit -m "${commitMsg.trim()}"`);
+            console.log("\n" + label.system + " " + colors.success("✓ Changes committed successfully!\n"));
+          } catch (err) {
+            console.log("\n" + label.error + " " + colors.danger("Failed to commit changes: " + err.message + "\n"));
+          }
+        } else {
+          console.log("\n" + label.warning + " " + colors.muted("Commit aborted (empty message).\n"));
+        }
+
+        await new Promise(r => setTimeout(r, 1500));
+
+        stdin.setRawMode(true);
+        stdin.resume();
+        stdout.write("\x1b[?25l");
+        renderedLines = 0;
+        files = getGitStatusFiles();
+        activeIndex = 0;
+        render();
+        return;
+      }
+
+      if (key === "p" || key === "P") { // Push
+        cleanup();
+        console.log("\n" + label.system + " " + colors.brand("🚀 Pushing changes to remote branch..."));
+        try {
+          const out = execSync("git push", { encoding: "utf8" });
+          console.log(colors.muted(out));
+          console.log("\n" + label.system + " " + colors.success("✓ Push completed successfully!\n"));
+        } catch (err) {
+          console.log("\n" + label.error + " " + colors.danger("Failed to push changes: " + err.message + "\n"));
+        }
+
+        await new Promise(r => setTimeout(r, 2000));
+
+        stdin.setRawMode(true);
+        stdin.resume();
+        stdout.write("\x1b[?25l");
+        renderedLines = 0;
+        files = getGitStatusFiles();
+        render();
+        return;
+      }
+    }
+
+    function cleanup() {
+      stdin.removeListener("data", handleKey);
+      stdin.setRawMode(wasRaw);
+      stdin.pause();
+      stdout.write("\x1b[?25h"); // Show cursor
+    }
+
+    stdin.on("data", handleKey);
+  });
+}
+
+/**
+ * Handles spawning and launching the local telemetry dashboard.
+ */
+export async function handleDashboardCommand(ctx) {
+  const { startDashboardServer } = await import("./dashboard.js");
+  const { exec } = await import("node:child_process");
+  
+  try {
+    const { port } = await startDashboardServer();
+    console.log("\n" + label.system + " " + colors.brand("📊 AETHER WEB TELEMETRY DASHBOARD"));
+    console.log(separator("─"));
+    console.log(keyValue("  Status", colors.success("ONLINE")));
+    console.log(keyValue("  Local URL", `http://localhost:${port}`));
+    console.log("");
+    console.log("  " + colors.muted("Launching browser companion automatically..."));
+    
+    let startCmd = `start http://localhost:${port}`;
+    if (process.platform === "darwin") {
+      startCmd = `open http://localhost:${port}`;
+    } else if (process.platform === "linux") {
+      startCmd = `xdg-open http://localhost:${port}`;
+    }
+    exec(startCmd);
+    console.log("\n" + label.system + " " + colors.success("✓ Dashboard launched. Press Ctrl+C in this session to stop dashboard at exit.\n"));
+  } catch (err) {
+    console.log("\n" + label.error + " " + colors.danger("Failed to start dashboard server: " + err.message + "\n"));
+  }
+}
+

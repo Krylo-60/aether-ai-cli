@@ -1,3 +1,9 @@
+# Aether CLI v1.3.6 Highlights
+- **DX Fixes & Upgrades (Git TUI, Autopilot, Dashboard)**:
+  - Fixes non-interactive Git TUI test hangs in git-initialized home directories.
+  - Fixes visual HUD telemetry version rendering.
+  - Updates project package-lock mappings.
+
 # Aether CLI v1.3.5 Highlights
 - **Visual Telemetry Dashboard HUD (`aether dashboard` / `aether telemetry`)**:
   - Adds a local zero-dependency Web Server hosting a cyberpunk observability dashboard HUD.

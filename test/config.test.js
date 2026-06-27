@@ -148,6 +148,7 @@ test("Configuration Loading Suite", async (t) => {
     assert.strictEqual(isValidConfigKey("GOOGLE_API_KEYS"), true);
     assert.strictEqual(isValidConfigKey("THEME"), true);
     assert.strictEqual(isValidConfigKey("CUSTOM_COMMANDS"), true);
+    assert.strictEqual(isValidConfigKey("NERD_FONTS"), true);
     assert.strictEqual(isValidConfigKey("INVALID_KEY_NAME"), false);
   });
 

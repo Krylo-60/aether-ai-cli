@@ -486,3 +486,29 @@ export async function interactiveMenu(headerText, items) {
     stdin.on("data", handleKey);
   });
 }
+
+/**
+ * Returns either a premium Nerd Font glyph or a standard Unicode emoji fallback
+ * depending on whether NERD_FONTS is enabled in the configuration.
+ * @param {string} name - Icon name
+ * @param {object} config - Active configuration object
+ * @returns {string}
+ */
+export function getIcon(name, config) {
+  const useNerd = config?.NERD_FONTS === true || config?.NERD_FONTS === "true";
+  
+  const icons = {
+    workspace: useNerd ? "\uf07c " : "📂 ",
+    mode:      useNerd ? "\uf0e0 " : "🧠 ", // brain / envelope-like modes icon
+    network:   useNerd ? "\uf6ff " : "🟢 ", // network icon
+    engine:    useNerd ? "\uf013 " : "⚙️  ", // gear icon
+    package:   useNerd ? "\uf1b2 " : "📦 ", // package icon
+    mic:       useNerd ? "\uf130 " : "🎤 ", // microphone icon
+    git:       useNerd ? "\uf113 " : "🌿 ", // git/leaf icon
+    dashboard: useNerd ? "\uf201 " : "📊 ", // chart icon
+    bolt:      useNerd ? "\uf0e7 " : "⚡ ", // lightning bolt icon
+  };
+
+  return icons[name] || "";
+}
+

@@ -25,7 +25,8 @@ import {
   getActiveTheme,
   setTheme,
   getThemesList,
-  interactiveMenu
+  interactiveMenu,
+  getIcon
 } from "./ui/theme.js";
 import { createSpinner } from "./ui/spinner.js";
 import { showBanner } from "./ui/banner.js";
@@ -2256,7 +2257,7 @@ export async function handleMicInput(ctx) {
     return;
   }
 
-  console.log("\n" + label.system + " " + colors.brand("🎤 AUDIO VOICE INPUT"));
+  console.log("\n" + label.system + " " + colors.brand(getIcon("mic", ctx.aiConfig) + "AUDIO VOICE INPUT"));
   console.log(separator("─"));
   console.log(colors.accent("  Recording started..."));
   console.log("  " + colors.muted("Speak into your microphone."));

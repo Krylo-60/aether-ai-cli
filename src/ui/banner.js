@@ -7,7 +7,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
 import chalk from "chalk";
-import { colors, separator, modeBadge } from "./theme.js";
+import { colors, separator, modeBadge, getIcon } from "./theme.js";
 import { getActiveProviders } from "../ai/providers.js";
 import { MODES } from "../modes.js";
 
@@ -137,11 +137,11 @@ export function showBanner(currentMode = "titan") {
     : "npm (@krishivpb60/aether-ai-cli)";
 
   const rows = [
-    formatRow(` ${colors.muted("📂 Workspace")}`, colors.text(workspaceValue)),
-    formatRow(` ${colors.muted("🧠 Mode")}`, modeRowValue),
-    formatRow(` ${colors.muted("🟢 Network")}`, meshStatusText),
-    formatRow(` ${colors.muted("⚙️  Engine")}`, colors.text(engineValue)),
-    formatRow(` ${colors.muted("📦 Packager")}`, colors.text(packagerText)),
+    formatRow(` ${colors.muted(getIcon("workspace", config) + "Workspace")}`, colors.text(workspaceValue)),
+    formatRow(` ${colors.muted(getIcon("mode", config) + "Mode")}`, modeRowValue),
+    formatRow(` ${colors.muted(getIcon("network", config) + "Network")}`, meshStatusText),
+    formatRow(` ${colors.muted(getIcon("engine", config) + "Engine")}`, colors.text(engineValue)),
+    formatRow(` ${colors.muted(getIcon("package", config) + "Packager")}`, colors.text(packagerText)),
   ];
 
   console.log(`\n  ⚡ ${colors.brand("AETHER COMMAND STATION v" + version)} • Welcome back, ${colors.accent(username)}`);

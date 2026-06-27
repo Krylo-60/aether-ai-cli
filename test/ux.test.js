@@ -1,7 +1,7 @@
 import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
 import { ReadableStream } from "node:stream/web";
-import { separator, clearStreamedText, StreamFilter, stripCodeFences, getActiveTheme, setTheme, getThemesList } from "../src/ui/theme.js";
+import { separator, clearStreamedText, StreamFilter, stripCodeFences, getActiveTheme, setTheme, getThemesList, getIcon } from "../src/ui/theme.js";
 import { createSpinner } from "../src/ui/spinner.js";
 import { routePrompt } from "../src/ai/router.js";
 import { getModeByName, MODES } from "../src/modes.js";
@@ -182,5 +182,21 @@ test("Cyberpunk UX and Streaming Suite", async (t) => {
 
     const noFenceBlock = "console.log('hi');";
     assert.strictEqual(stripCodeFences(noFenceBlock), "console.log('hi');");
+  });
+
+  await t.test("getIcon returns Nerd Font glyphs if enabled, else defaults to emojis", () => {
+    const nerdConfig = { NERD_FONTS: true };
+    const emojiConfig = { NERD_FONTS: false };
+    const defaultConfig = {};
+
+    // 1. Nerd Font Enabled
+    assert.strictEqual(getIcon("mic", nerdConfig), "\uf130 ");
+    assert.strictEqual(getIcon("git", nerdConfig), "\uf113 ");
+    assert.strictEqual(getIcon("dashboard", nerdConfig), "\uf201 ");
+
+    // 2. Nerd Font Disabled / Empty
+    assert.strictEqual(getIcon("mic", emojiConfig), "🎤 ");
+    assert.strictEqual(getIcon("git", emojiConfig), "🌿 ");
+    assert.strictEqual(getIcon("mic", defaultConfig), "🎤 ");
   });
 });

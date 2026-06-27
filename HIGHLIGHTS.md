@@ -1,3 +1,12 @@
+# Aether CLI v1.4.0 Highlights
+- **Microphone Audio Input & Dynamic Nerd Font Glyphs (`/mic`)**:
+  - Adds `/mic` voice command to record audio directly from your microphone inside the terminal session.
+  - Implements native zero-dependency audio recording on Windows using the WinMM Multimedia Control Interface (MCI) via PowerShell.
+  - Automatically transcribes speech using Google Gemini (base64 inlineData), Groq Whisper, or OpenAI Whisper.
+  - Fixes readline interface raw mode pausing blockages to ensure Enter keypress resolves transcription correctly.
+  - Introduces dynamic `getIcon` helper supporting high-definition vector icons in the terminal.
+  - Adds optional `"NERD_FONTS"` configuration parameter (`aether config set NERD_FONTS true`) to automatically switch between standard emojis and Nerd Font glyphs (like FontAwesome microphones, folders, gears, and branch trees) based on your preferences.
+
 # Aether CLI v1.3.11 Highlights
 - **Microphone Audio Input Non-TTY Safety & Transcription (`/mic`)**:
   - Adds `/mic` voice command to record audio directly from your microphone inside the terminal session.

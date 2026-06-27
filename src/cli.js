@@ -312,7 +312,7 @@ async function handleAsk(prompt, opts) {
       console.log(separator("─"));
       console.log("");
 
-      if (result.provider === "local" || result.provider === "krylo-fallback") {
+      if (result.provider === "local" || result.provider === "offline-fallback") {
         console.log(colors.text("  " + result.text.split("\n").join("\n  ")));
       } else {
         let displayText = result.text;
@@ -577,11 +577,11 @@ async function handleStatus() {
   console.log("");
   console.log(colors.accent("  ◈ Local Fallbacks:"));
   console.log(keyValue("    Math Solver", colors.success("✓ Active")));
-  console.log(keyValue("    Krylo Companion", colors.success("✓ Standing By")));
+  console.log(keyValue("    Offline Fallback", colors.success("✓ Standing By")));
 
   console.log("");
   console.log(colors.accent("  ◈ Failover Mesh:"));
-  const totalNodes = 1 + active.length; // +1 for Krylo
+  const totalNodes = 1 + active.length; // +1 for local offline fallback
   console.log(keyValue("    Active Nodes", `${totalNodes}`));
   console.log(keyValue("    Mesh Status", active.length > 0 ? colors.success("✓ Online") : colors.warning("⚠ Local Only")));
   console.log("");
@@ -739,7 +739,7 @@ async function handleSetup() {
     console.log("  " + colors.muted("Start chatting: ") + colors.accent("aether chat"));
     console.log("  " + colors.muted("Quick query: ") + colors.accent('aether ask "Hello!"'));
   } else {
-    console.log("\n  " + colors.warning("No providers configured. Aether will use Krylo fallback mode."));
+    console.log("\n  " + colors.warning("No providers configured. Aether will use local offline fallback mode."));
     console.log("  " + colors.muted("Run ") + colors.accent("aether setup") + colors.muted(" again anytime."));
   }
   console.log("");

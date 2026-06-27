@@ -3,7 +3,7 @@ import assert from "node:assert";
 import {
   detectMathExpression,
   solveMath,
-  generateKryloReply,
+  generateOfflineReply,
   runMainframeHack,
 } from "../src/ai/fallback.js";
 
@@ -50,38 +50,10 @@ test("Offline Math Fallback & Krylo Suite", async (t) => {
     assert.strictEqual(solveMath("console.log(1)"), null);
   });
 
-  await t.test("generateKryloReply responds to help and shortcut keywords", () => {
-    const reply = generateKryloReply("I need help with commands");
-    assert.strictEqual(reply.type, "krylo-local");
-    assert.ok(reply.text.includes("[SYSTEM DECK CHEAT SHEET]"));
-    assert.ok(reply.text.includes("Ctrl + K"));
-  });
-
-  await t.test("generateKryloReply responds to status and diagnostic keywords", () => {
-    const reply = generateKryloReply("What is the CPU status?");
-    assert.strictEqual(reply.type, "krylo-local");
-    assert.ok(reply.text.includes("[LIVE DIAGNOSTIC READOUT]"));
-    assert.ok(reply.text.includes("Failover Mesh"));
-  });
-
-  await t.test("generateKryloReply responds to matrix/rain/color keywords", () => {
-    const reply = generateKryloReply("change matrix color");
-    assert.strictEqual(reply.type, "krylo-local");
-    assert.ok(reply.text.includes("[NEURAL GRIDS MODULATION]"));
-    assert.ok(reply.text.includes("Classic Green"));
-  });
-
-  await t.test("generateKryloReply responds to who/name/creator keywords", () => {
-    const reply = generateKryloReply("who is your creator?");
-    assert.strictEqual(reply.type, "krylo-local");
-    assert.ok(reply.text.includes("[HOLOGRAPHIC COMPANION PROTOCOL]"));
-    assert.ok(reply.text.includes("Krishiv PB"));
-  });
-
-  await t.test("generateKryloReply falls back to random terminal responses", () => {
-    const reply = generateKryloReply("Unrelated query");
-    assert.strictEqual(reply.type, "krylo-local");
-    assert.ok(reply.text.includes("[KRYLO TERMINAL RESPONSE]"));
+  await t.test("generateOfflineReply returns offline error formatting", () => {
+    const reply = generateOfflineReply("any query");
+    assert.strictEqual(reply.type, "offline-error");
+    assert.ok(reply.text.includes("No active API keys configured"));
   });
 
   await t.test("detectMathExpression and solveMath support trig, logs, square root and constants", () => {

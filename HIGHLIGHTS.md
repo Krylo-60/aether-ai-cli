@@ -1,3 +1,9 @@
+# Aether CLI v1.4.1 Highlights
+- **Krylo Companion Bot Removal**:
+  - Removes the fictional Krylo companion terminal response lines entirely from local failbacks and mesh failures.
+  - Retains and isolates the fast local offline Math solver fallback.
+  - Implements clean, professional offline/configuration error alerts when no API keys are active or fail to respond.
+
 # Aether CLI v1.4.0 Highlights
 - **Microphone Audio Input & Dynamic Nerd Font Glyphs (`/mic`)**:
   - Adds `/mic` voice command to record audio directly from your microphone inside the terminal session.

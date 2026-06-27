@@ -1,16 +1,7 @@
 // ═══════════════════════════════════════════════════════════
 // AETHER AI CLI — Local Fallback Engine
-// Math Solver + Krylo Companion Bot
+// Math Solver & Offline Fallback
 // ═══════════════════════════════════════════════════════════
-
-const KRYLO_REPLIES = [
-  "Affirmative, commander. Systems are running at peak cybernetic capacity.",
-  "Neon grids initialized. Matrix color modulates are at nominal density.",
-  "Warning: Solar flare activity detected. Detuning audio synth harmonics by 18.4% to compensate.",
-  "Neural nodes synchronized. Analyzing the portfolio's glassmorphic boundaries.",
-  "I am Krylo, your holographic companion terminal. Ready to warp index nodes.",
-  "Ecosystem diagnostics complete. 0 memory leaks, 100% premium responsive UI."
-];
 
 /**
  * Detects if a prompt is a pure mathematical expression.
@@ -108,72 +99,16 @@ export function runMainframeHack() {
 }
 
 /**
- * Generates a local Krylo companion reply based on keywords.
+ * Generates a local offline/error reply when no AI keys are configured or fail.
  * @param {string} prompt - The user prompt
  * @returns {{ text: string, type: string }}
  */
-export function generateKryloReply(prompt) {
-  const clean = prompt.toLowerCase();
-
-  if (clean.includes("help") || clean.includes("shortcut") || clean.includes("command")) {
-    return {
-      text: [
-        "💡 [SYSTEM DECK CHEAT SHEET]",
-        "   • Use `Ctrl + K` to open the Portal Search.",
-        "   • Use `Ctrl + Shift + L` to open the Links Directory.",
-        "   • Trigger Konami Code `↑↑↓↓←→←→BA` to launch Matrix mode!",
-        "   • Type `/mode <name>` to switch reasoning modes.",
-        "   • Type `/attach <file>` to inject file context.",
-        "   • Type `/export` to save the conversation.",
-      ].join("\n"),
-      type: "krylo-local",
-    };
-  }
-
-  if (clean.includes("status") || clean.includes("hud") || clean.includes("cpu") || clean.includes("ping") || clean.includes("diagnostics")) {
-    return {
-      text: [
-        "📊 [LIVE DIAGNOSTIC READOUT]",
-        "   • CPU Core Load: 15.4% (Optimized)",
-        "   • Ping Latency: 12ms (Hyper-Fast)",
-        "   • Memory Usage: 247MB / 8192MB",
-        "   • Canvas Sparklines: Active and tracking vectors",
-        "   • Failover Mesh: All 12 nodes standing by",
-      ].join("\n"),
-      type: "krylo-local",
-    };
-  }
-
-  if (clean.includes("matrix") || clean.includes("rain") || clean.includes("color")) {
-    return {
-      text: [
-        "⚡ [NEURAL GRIDS MODULATION]",
-        "   • Five stream channels active:",
-        "     Classic Green, Cyber Cyan, Neon Purple,",
-        "     Overdrive Red, Golden Matrix.",
-        "   • Detuned Web Audio frequency active.",
-        "   • Matrix rain density: 94.2%",
-      ].join("\n"),
-      type: "krylo-local",
-    };
-  }
-
-  if (clean.includes("who") || clean.includes("name") || clean.includes("creator")) {
-    return {
-      text: [
-        "🤖 [HOLOGRAPHIC COMPANION PROTOCOL]",
-        "   • Identification: Krylo (Nexus Companion)",
-        "   • Purpose: Pair-programming assistant & Commander companion",
-        "   • Creator: Krishiv PB — The Master Coder",
-        "   • Version: Aether Core AI v110 — Fusion Build",
-      ].join("\n"),
-      type: "krylo-local",
-    };
-  }
-
-  const index = Math.floor(Math.random() * KRYLO_REPLIES.length);
+export function generateOfflineReply(prompt) {
   return {
-    text: `🤖 [KRYLO TERMINAL RESPONSE]\n   ${KRYLO_REPLIES[index]}`,
-    type: "krylo-local",
+    text: [
+      "⚠️  No active API keys configured. Please set GOOGLE_API_KEY, GROQ_API_KEY, or OPENAI_API_KEY in your config to start chatting.",
+      "    Example: aether config set GOOGLE_API_KEY <your-key>"
+    ].join("\n"),
+    type: "offline-error"
   };
 }

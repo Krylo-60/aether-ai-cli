@@ -536,9 +536,9 @@ const HTML_CONTENT = `<!DOCTYPE html>
       topoList.appendChild(createTopologyElement({
         name: "Local Solver Node",
         configured: true,
-        defaultModel: "Offline Math + Krylo Companion",
+        defaultModel: "Offline Math & Logic",
         tier: "free",
-        description: "Zero-latency mathematical reasoning & local assistant fallbacks."
+        description: "Zero-latency mathematical reasoning & local offline fallbacks."
       }, "Node 0 (Local)"));
 
       mesh.forEach((provider, idx) => {

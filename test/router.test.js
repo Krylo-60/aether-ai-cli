@@ -134,19 +134,19 @@ test("Universal AI Router Suite", async (t) => {
     assert.ok(fetchCalls[1].url.includes("key=key-success"));
   });
 
-  await t.test("routePrompt falls back to Krylo companion when no providers are configured", async () => {
+  await t.test("routePrompt falls back to Offline fallback when no providers are configured", async () => {
     globalThis.fetch = async () => {
       throw new Error("Fetch should not be called");
     };
 
     const result = await routePrompt("status", "Sys prompt", {});
-    assert.strictEqual(result.provider, "krylo-fallback");
+    assert.strictEqual(result.provider, "offline-fallback");
     assert.strictEqual(result.node, 0);
-    assert.strictEqual(result.type, "krylo-local");
-    assert.ok(result.text.includes("[LIVE DIAGNOSTIC READOUT]"));
+    assert.strictEqual(result.type, "offline-error");
+    assert.ok(result.text.includes("No active API keys configured"));
   });
 
-  await t.test("routePrompt falls back to Krylo companion when all providers fail", async () => {
+  await t.test("routePrompt falls back to Offline fallback when all providers fail", async () => {
     globalThis.fetch = async (url, options) => {
       fetchCalls.push({ url, options });
       return {
@@ -164,7 +164,7 @@ test("Universal AI Router Suite", async (t) => {
 
     const result = await routePrompt("Hello", "Sys prompt", config);
     
-    assert.strictEqual(result.provider, "krylo-fallback");
+    assert.strictEqual(result.provider, "offline-fallback");
     assert.strictEqual(result.node, 0);
     assert.ok(result.errors);
     assert.strictEqual(result.errors.length, 2);

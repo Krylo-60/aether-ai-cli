@@ -3,7 +3,7 @@
 // Routes through ALL configured providers automatically
 // ═══════════════════════════════════════════════════════════
 
-import { detectMathExpression, solveMath, generateKryloReply } from "./fallback.js";
+import { detectMathExpression, solveMath, generateOfflineReply } from "./fallback.js";
 import { PROVIDERS, getActiveProviders } from "./providers.js";
 import {
   callOpenAICompatible,
@@ -59,16 +59,16 @@ export async function routePrompt(prompt, systemPrompt, config, onToken, history
     }
   }
 
-  // ── No providers configured → Krylo ────────────────────
+  // ── No providers configured → Offline ───────────────────
   if (active.length === 0) {
     const startTime = performance.now();
-    const kryloReply = generateKryloReply(prompt);
+    const offlineReply = generateOfflineReply(prompt);
     const latencyMs = performance.now() - startTime;
     const pTokens = estimateTokens(systemPrompt + prompt);
-    const cTokens = estimateTokens(kryloReply.text);
-    const usage = recordTokenUsage("krylo-local", pTokens, cTokens);
-    recordLatency("krylo-fallback", "local", latencyMs, pTokens, cTokens, true);
-    return { ...kryloReply, provider: "krylo-fallback", node: 0, usage };
+    const cTokens = estimateTokens(offlineReply.text);
+    const usage = recordTokenUsage("offline-local", pTokens, cTokens);
+    recordLatency("offline-fallback", "local", latencyMs, pTokens, cTokens, true);
+    return { ...offlineReply, provider: "offline-fallback", node: 0, usage };
   }
 
   // ── Try each provider in order ──────────────────────────
@@ -128,17 +128,17 @@ export async function routePrompt(prompt, systemPrompt, config, onToken, history
     }
   }
 
-  // ── Final Fallback: Krylo Companion ─────────────────────
-  const startTimeKrylo = performance.now();
-  const kryloReply = generateKryloReply(prompt);
-  const latencyMsKrylo = performance.now() - startTimeKrylo;
+  // ── Final Fallback: Offline Fallback ────────────────────
+  const startTimeOffline = performance.now();
+  const offlineReply = generateOfflineReply(prompt);
+  const latencyMsOffline = performance.now() - startTimeOffline;
   const pTokens = estimateTokens(systemPrompt + prompt + history.map(h => h.content).join(""));
-  const cTokens = estimateTokens(kryloReply.text);
-  const usage = recordTokenUsage("krylo-local", pTokens, cTokens);
-  recordLatency("krylo-fallback", "local", latencyMsKrylo, pTokens, cTokens, true);
+  const cTokens = estimateTokens(offlineReply.text);
+  const usage = recordTokenUsage("offline-local", pTokens, cTokens);
+  recordLatency("offline-fallback", "local", latencyMsOffline, pTokens, cTokens, true);
   return {
-    ...kryloReply,
-    provider: "krylo-fallback",
+    ...offlineReply,
+    provider: "offline-fallback",
     node: 0,
     errors,
     usage,

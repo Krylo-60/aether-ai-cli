@@ -117,7 +117,7 @@ export async function startChat(options = {}) {
       label.mesh + " " +
       colors.accent("Failover mesh online: ") +
       colors.text(unique.join(" → ")) +
-      colors.muted(" → Krylo fallback")
+      colors.muted(" → Offline fallback")
     );
     console.log(
       "  " + colors.dim(`${active.length} node(s) active across ${unique.length} provider(s)`) + "\n"
@@ -298,7 +298,7 @@ export async function startChat(options = {}) {
         console.log(separator("─"));
         console.log("");
 
-        if (result.provider === "local" || result.provider === "krylo-fallback") {
+        if (result.provider === "local" || result.provider === "offline-fallback") {
           console.log(colors.text("  " + result.text.split("\n").join("\n  ")));
         } else {
           let displayText = result.text;
@@ -897,7 +897,7 @@ function showActiveProviders(aiConfig) {
   for (const { provider } of active) {
     console.log("  " + colors.success("✓ ") + colors.text(provider.name) + colors.dim(` • ${provider.defaultModel}`));
   }
-  console.log("  " + colors.success("✓ ") + colors.text("Krylo Companion") + colors.dim(" • Local fallback"));
+  console.log("  " + colors.success("✓ ") + colors.text("Offline Fallback") + colors.dim(" • Local fallback"));
   console.log("  " + colors.success("✓ ") + colors.text("Math Solver") + colors.dim(" • Local"));
   console.log("");
 }
@@ -1184,7 +1184,7 @@ function providerBadge(result) {
     "perplexity":     chalk.bgHex("#1a2a2a").hex("#6ce8ff")(" Perplexity "),
     "fireworks ai":   chalk.bgHex("#2a1a1a").hex("#ff6b8d")(" Fireworks "),
     "local":          chalk.bgHex("#1a2a1a").hex("#67ffb0")(" Math Solver "),
-    "krylo-fallback": chalk.bgHex("#0c1825").hex("#6ce8ff")(" Krylo "),
+    "offline-fallback": chalk.bgHex("#2a0a14").hex("#ff6b6b")(" Offline "),
   };
 
   const badge = badges[result.provider] || colors.muted(` ${result.provider} `);

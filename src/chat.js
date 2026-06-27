@@ -139,7 +139,7 @@ export async function startChat(options = {}) {
       "/theme", "/themes", "/history-clear", "/game", "/abort", "/cmd", "/write",
       "/commit", "/run", "/history", "/autopilot", "/tokens", "/update",
       "/review", "/diagnose", "/explain", "/refactor", "/bug", "/doc", "/translate",
-      "/search", "/git", "/dashboard", "/cd"
+      "/search", "/git", "/dashboard", "/cd", "/mic"
     ];
     const customCmds = aiConfig.CUSTOM_COMMANDS || {};
     const commands = [...builtIn, ...Object.keys(customCmds)];
@@ -432,7 +432,7 @@ export async function startChat(options = {}) {
         "/theme", "/themes", "/history-clear", "/game", "/abort", "/cmd",
         "/guess", "/write", "/commit", "/run", "/history", "/autopilot", "/tokens",
         "/update", "/review", "/diagnose", "/explain", "/refactor", "/bug", "/doc",
-        "/translate", "/search", "/git", "/dashboard", "/cd"
+        "/translate", "/search", "/git", "/dashboard", "/cd", "/mic"
       ];
       
       const customCmds = aiConfig.CUSTOM_COMMANDS || {};
@@ -617,6 +617,10 @@ async function handleCommand(input, ctx) {
       await handleDashboardCommand(ctx);
       break;
 
+    case "/mic":
+      await handleMicInput(ctx);
+      break;
+
     case "/tokens":
       await handleTokensDisplay(ctx);
       break;
@@ -655,6 +659,7 @@ function showHelp(aiConfig) {
   console.log(keyValue("/autopilot <mode|debug [cmd]>", "View/switch autopilot level (off, safe, workspace, machine) or run autonomous debug loop"));
   console.log(keyValue("/git", "Launch interactive Git branch tree, history, and file staging TUI"));
   console.log(keyValue("/dashboard", "Spawn web-based local cyberpunk telemetry dashboard companion"));
+  console.log(keyValue("/mic", "Record audio voice input from microphone and transcribe to text"));
   console.log(keyValue("/tokens", "View detailed session token usage and exchanges telemetry"));
   console.log(keyValue("/update", "Force check for updates and update Aether CLI manually"));
   console.log(keyValue("/game", "Start the local mainframe hacking mini-game"));
@@ -2223,6 +2228,84 @@ export async function handleDashboardCommand(ctx) {
     console.log("\n" + label.system + " " + colors.success("✓ Dashboard launched. Press Ctrl+C in this session to stop dashboard at exit.\n"));
   } catch (err) {
     console.log("\n" + label.error + " " + colors.danger("Failed to start dashboard server: " + err.message + "\n"));
+  }
+}
+
+/**
+ * Handles recording audio voice from microphone and transcribing to text input.
+ */
+export async function handleMicInput(ctx) {
+  const { startRecording, transcribeAudioFile } = await import("./mic.js");
+  const { join } = await import("node:path");
+  const { tmpdir } = await import("node:os");
+  const fs = await import("node:fs");
+
+  const apiKeyExists = ctx.aiConfig.GOOGLE_API_KEY || ctx.aiConfig.GROQ_API_KEY || ctx.aiConfig.OPENAI_API_KEY;
+  if (!apiKeyExists) {
+    console.log("\n" + label.error + " " + colors.danger("No API keys found for speech-to-text. Please configure GOOGLE_API_KEY, GROQ_API_KEY, or OPENAI_API_KEY.\n"));
+    return;
+  }
+
+  const wavPath = join(tmpdir(), `aether_mic_${Date.now()}.wav`);
+  let handle;
+
+  try {
+    handle = await startRecording(wavPath);
+  } catch (err) {
+    console.log("\n" + label.error + " " + colors.danger(`Failed to start recording: ${err.message}\n`));
+    return;
+  }
+
+  console.log("\n" + label.system + " " + colors.brand("🎤 AUDIO VOICE INPUT"));
+  console.log(separator("─"));
+  console.log(colors.accent("  Recording started..."));
+  console.log("  " + colors.muted("Speak into your microphone."));
+  console.log("  " + colors.brand("Press [Enter] to STOP and transcribe..."));
+  console.log(separator("─"));
+
+  ctx.rl.pause();
+
+  await new Promise((resolve) => {
+    function onData(chunk) {
+      if (chunk === "\r" || chunk === "\n" || chunk === "\r\n") {
+        process.stdin.removeListener("data", onData);
+        resolve();
+      }
+    }
+    process.stdin.on("data", onData);
+  });
+
+  ctx.rl.resume();
+
+  console.log("");
+  const spinner = createSpinner("transcribe");
+  spinner.start("Stopping recording and transcribing...");
+
+  try {
+    await handle.stop();
+    const text = await transcribeAudioFile(wavPath, ctx.aiConfig);
+    spinner.stop();
+
+    if (fs.existsSync(wavPath)) {
+      try { fs.unlinkSync(wavPath); } catch (e) {}
+    }
+
+    if (!text.trim()) {
+      console.log("\n" + label.system + " " + colors.warning("No speech detected or transcription was empty.\n"));
+      return;
+    }
+
+    console.log("\n" + label.system + " " + colors.success("✓ Transcribed text:"));
+    console.log("  " + colors.text(`"${text}"`));
+    console.log("");
+
+    ctx.rl.write(text);
+  } catch (err) {
+    spinner.stop();
+    if (fs.existsSync(wavPath)) {
+      try { fs.unlinkSync(wavPath); } catch (e) {}
+    }
+    console.log("\n" + label.error + " " + colors.danger(`Transcription failed: ${err.message}\n`));
   }
 }
 

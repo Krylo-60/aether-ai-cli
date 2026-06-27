@@ -32,6 +32,7 @@
 - 🤖 **Autopilot Debug Loop** — Automatically correct build/test failures using AI self-correcting feedback loop
 - 🌿 **Interactive Git TUI** — Beautiful cyberpunk ASCII branch tree commit history & interactive file staging checkbox menu
 - 📊 **Web HUD Dashboard** — Companion local zero-dependency telemetry dashboard displaying real-time latencies & provider status
+- 🎤 **Voice Microphone Input** — Record voice input directly from your terminal and transcribe it to text using Google Gemini or Whisper
 - 🔄 **Failover Mesh** — Automatic failback across all configured providers
 - 🔢 **Local Math Solver** — Evaluates mathematical expressions without an API call
 - 🤖 **Krylo Companion** — Offline cyberpunk companion bot when no API keys are configured
@@ -197,6 +198,7 @@ Inside interactive chat mode, use these slash commands:
 | `/autopilot <mode\|debug [cmd]>` | View/switch autopilot safety level or run autonomous debug loop |
 | `/git` | Launch interactive cyberpunk Git TUI and file stager checkbox menu |
 | `/dashboard` | Spawn zero-dependency local web server and launch telemetry dashboard HUD |
+| `/mic` | Record audio voice input from microphone and transcribe to text |
 | `/tokens` | View detailed session token usage and exchanges telemetry |
 | `/update` | Force check for updates and update Aether CLI manually |
 | `/review` | Run git diff and stream an AI code review |

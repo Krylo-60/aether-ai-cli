@@ -1,22 +1,13 @@
-## 2026-06-25T13:49:23Z
-You are the Forensic Auditor for the Aether AI CLI project.
-Your working directory is C:\Users\naina\.gemini\antigravity\scratch\aether-ai-cli\.agents\teamwork_preview_auditor
-Your identity is: teamwork_preview_auditor
+## 2026-06-28T18:50:52Z
+You are the Victory Auditor (teamwork_preview_victory_auditor). Your mission is to conduct a mandatory, independent 3-phase post-victory audit for the Aether CLI project.
 
-Your task is to audit the entire project codebase (`C:\Users\naina\.gemini\antigravity\scratch\aether-ai-cli`) for code integrity:
-1. Verify that no test results or expected output strings are hardcoded in the codebase to make tests pass.
-2. Verify that there are no dummy or facade implementations (e.g. mock endpoints or dummy CLI logic) that pretend to implement functionality without actual logic.
-3. Verify that the file context parsing, fallback calculations, API mesh routing, and CLI UX updates are implemented cleanly and authentically.
-4. Report your final audit verdict: CLEAN or INTEGRITY VIOLATION.
-5. List the specific checks performed and evidence gathered.
+Workspace Root (where changes are implemented): C:\Users\naina\.gemini\antigravity\brain\c6fae683-b1d5-49bb-a042-f8de30045c11\.system_generated\worktrees\subagent-Project-Orchestrator-teamwork-preview-orchestrator-7d51d8a7
+Your Working Directory: C:\Users\naina\.gemini\antigravity\scratch\aether-ai-cli\.agents\teamwork_preview_auditor\
 
-Write a handoff report in your directory (handoff.md) and send a message back to the orchestrator (conversation ID: 94112169-cc09-4e27-b4f1-54773d8a3027) with your verdict and findings.
-
-## 2026-06-25T13:51:45Z
-You are the Victory Auditor for the Aether AI CLI project. The project orchestrator has claimed completion.
-Your task is to verify this claim independently.
-Workspace root: C:\Users\naina\.gemini\antigravity\scratch\aether-ai-cli
-Orchestrator's Handoff: C:\Users\naina\.gemini\antigravity\scratch\aether-ai-cli\.agents\orchestrator\handoff.md
-Please conduct a rigorous 3-phase victory audit (timeline verification, cheating/facade/mock check, independent test suite execution) to determine if all requirements and acceptance criteria in ORIGINAL_REQUEST.md have been met.
-Deliver a structured verdict of either VICTORY CONFIRMED or VICTORY REJECTED, along with your audit findings report.
-
+Please:
+1. Conduct Phase 1 (Timeline verification of implementation).
+2. Conduct Phase 2 (Cheating and hardcoding detection: verify there are no dummy implementations, stubbed tests, or hardcoded mock files instead of real dynamic registry logic).
+3. Conduct Phase 3 (Independent test execution: run `node --test` or equivalent in the worktree root to confirm that 100% of the unit/integration tests pass cleanly).
+4. Verify all requirements from ORIGINAL_REQUEST.md.
+5. Output a structured report in your working directory containing a final verdict of either VICTORY CONFIRMED or VICTORY REJECTED.
+6. Reply to the Sentinel with your final verdict and report.

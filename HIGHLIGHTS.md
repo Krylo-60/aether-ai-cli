@@ -1,3 +1,8 @@
+# Aether CLI v1.4.5 Highlights
+- **Multi-Session Unit Test Race Condition Fix**:
+  - Adds history folder isolation and a 50ms timestamp delay to unit tests to prevent flaky assertions on fast filesystems and CI runners.
+  - Ensures clean test execution on Ubuntu/GitHub Actions without session sorting race conditions.
+
 # Aether CLI v1.4.4 Highlights
 - **Strict Solver Mocking Prohibition**:
   - Adds a new system-level constraint preventing AI models from simulating or formatting their own replies with internal prefixes like `🤖 [LOCAL MATH SOLVER]` or offline banners.

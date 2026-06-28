@@ -175,9 +175,22 @@ test("Configuration Loading Suite", async (t) => {
   });
 
   await t.test("listSessions, switchSession, and startNewSession handle multi-session histories", async () => {
+    // Clean history directory first to avoid leftover test files
+    const fs = await import("node:fs");
+    const historyDir = join(tempHome, ".aether", "history");
+    if (fs.existsSync(historyDir)) {
+      const files = fs.readdirSync(historyDir);
+      for (const f of files) {
+        fs.unlinkSync(join(historyDir, f));
+      }
+    }
+
     // 1. Start new session
     const file1 = startNewSession();
     await saveHistory([{ role: "user", content: "session 1" }], "research");
+
+    // Wait 50ms to guarantee distinct timestamps and file system order
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     // 2. Start another new session
     const file2 = startNewSession();

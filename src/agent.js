@@ -27,6 +27,7 @@ Rules:
 - Before running modifying commands or reading private files, check the user's permission level.
 - Always output clean, direct commands.
 - Do not explain these command blocks; just output them when you need to perform the action.
+- Never output or format responses using local output prefixes like '🤖 [LOCAL MATH SOLVER]' or offline fallback banners. Respond naturally as the assistant.
 `;
 
 /**

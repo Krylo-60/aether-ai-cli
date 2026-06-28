@@ -22,9 +22,21 @@ const SUPPORTED_EXTENSIONS = new Set([
  * @returns {Promise<{ name: string, content: string, size: number, extension: string }>}
  */
 export async function parseFile(filePath) {
-  const resolved = resolve(filePath);
+  let lineRange = null;
+  let cleanFilePath = filePath;
+
+  // Match ending with :start-end or :line (e.g. :10-50 or :100)
+  const match = filePath.match(/:(\d+)(?:-(\d+))?$/);
+  if (match) {
+    cleanFilePath = filePath.slice(0, match.index);
+    const start = parseInt(match[1], 10);
+    const end = match[2] ? parseInt(match[2], 10) : start;
+    lineRange = { start, end };
+  }
+
+  const resolved = resolve(cleanFilePath);
   const ext = extname(resolved).toLowerCase();
-  const name = basename(resolved);
+  let name = basename(resolved);
 
   // Validate extension
   if (!SUPPORTED_EXTENSIONS.has(ext)) {
@@ -54,6 +66,17 @@ export async function parseFile(filePath) {
     throw new Error(`Cannot read file: ${err.message}`);
   }
 
+  let finalSize = fileStats.size;
+
+  if (lineRange) {
+    const lines = content.split(/\r?\n/);
+    const startIdx = Math.max(0, lineRange.start - 1);
+    const endIdx = Math.min(lines.length, lineRange.end);
+    content = lines.slice(startIdx, endIdx).join("\n");
+    name += `:${lineRange.start}-${lineRange.end}`;
+    finalSize = Buffer.byteLength(content, "utf-8");
+  }
+
   // Trim if too long
   if (content.length > MAX_CONTENT_LENGTH) {
     content = content.slice(0, MAX_CONTENT_LENGTH) +
@@ -63,7 +86,7 @@ export async function parseFile(filePath) {
   return {
     name,
     content: content.trim(),
-    size: fileStats.size,
+    size: finalSize,
     extension: ext,
   };
 }

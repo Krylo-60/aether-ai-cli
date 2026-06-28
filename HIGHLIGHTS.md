@@ -1,3 +1,8 @@
+# Aether CLI v1.4.6 Highlights
+- **Granular File Line Range Selection (`/attach file:start-end`)**:
+  - Adds syntax support for selecting line ranges when attaching file context (e.g., `/attach src/cli.js:10-50` or `/attach index.html:100`).
+  - Limits context payload sizes, preventing prompt bloat and optimizing token costs by excluding irrelevant code blocks.
+
 # Aether CLI v1.4.5 Highlights
 - **Multi-Session Unit Test Race Condition Fix**:
   - Adds history folder isolation and a 50ms timestamp delay to unit tests to prevent flaky assertions on fast filesystems and CI runners.

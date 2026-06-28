@@ -133,4 +133,28 @@ test("File Parser & Context Suite", async (t) => {
     const dataMb = { name: "mb.txt", content: "", size: 1048576 * 2.5, extension: ".txt" };
     assert.ok(formatContext(dataMb).includes("(2.5MB, .txt)"));
   });
+
+  await t.test("parseFile parses a file with a specific line range (e.g. :2-4) successfully", async () => {
+    const filePath = join(tempDir, "range.txt");
+    const content = "line 1\nline 2\nline 3\nline 4\nline 5";
+    await writeFile(filePath, content, "utf-8");
+
+    const parsed = await parseFile(`${filePath}:2-4`);
+    assert.strictEqual(parsed.name, "range.txt:2-4");
+    assert.strictEqual(parsed.content, "line 2\nline 3\nline 4");
+    assert.strictEqual(parsed.extension, ".txt");
+    assert.strictEqual(parsed.size, Buffer.byteLength("line 2\nline 3\nline 4"));
+  });
+
+  await t.test("parseFile parses a file with a single line index (e.g. :3) successfully", async () => {
+    const filePath = join(tempDir, "single.txt");
+    const content = "line 1\nline 2\nline 3\nline 4";
+    await writeFile(filePath, content, "utf-8");
+
+    const parsed = await parseFile(`${filePath}:3`);
+    assert.strictEqual(parsed.name, "single.txt:3-3");
+    assert.strictEqual(parsed.content, "line 3");
+    assert.strictEqual(parsed.extension, ".txt");
+    assert.strictEqual(parsed.size, Buffer.byteLength("line 3"));
+  });
 });

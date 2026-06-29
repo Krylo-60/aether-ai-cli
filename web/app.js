@@ -307,7 +307,7 @@ function copyText(text, btn) {
   navigator.clipboard.writeText(text).then(() => {
     const originalText = btn.innerHTML;
     btn.innerHTML = "<span>COPIED!</span>";
-    btn.style.background = "var(--neon-green)";
+    btn.style.background = "var(--google-green)";
     btn.style.color = "var(--bg-deep)";
     
     setTimeout(() => {

@@ -1224,7 +1224,7 @@ function providerBadge(result) {
     "perplexity":     chalk.bgHex("#1a2a2a").hex("#6ce8ff")(" Perplexity "),
     "fireworks ai":   chalk.bgHex("#2a1a1a").hex("#ff6b8d")(" Fireworks "),
     "local":          chalk.bgHex("#1a2a1a").hex("#67ffb0")(" Math Solver "),
-    "offline-fallback": chalk.bgHex("#2a0a14").hex("#ff6b6b")(" Offline "),
+    "offline-fallback": chalk.bgHex("#0c1825").hex("#6ce8ff")(" Krylo "),
   };
 
   const badge = badges[result.provider] || colors.muted(` ${result.provider} `);

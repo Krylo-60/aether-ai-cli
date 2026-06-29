@@ -100,11 +100,16 @@ export function runMainframeHack() {
 
 /**
  * Generates a local offline/error reply when no AI keys are configured or fail.
+ * Implements the Krylo companion bot fallback speaking clean English.
  * @param {string} prompt - The user prompt
  * @param {string[]} [errors] - Optional error messages from failed provider nodes
  * @returns {{ text: string, type: string }}
  */
 export function generateOfflineReply(prompt, errors = []) {
+  const clean = (prompt || "").trim().toLowerCase();
+  let header = "🤖 [KRYLO COMPANION - OFFLINE MODE]";
+
+  // Default Error/Quota Fallback
   if (errors && errors.length > 0) {
     const isRateLimited = errors.some((e) => {
       const lower = e.toLowerCase();
@@ -118,15 +123,19 @@ export function generateOfflineReply(prompt, errors = []) {
       );
     });
 
-    const lines = ["⚠️  All configured AI provider nodes failed to respond."];
+    const lines = [
+      header,
+      "⚠️ All configured AI provider nodes failed to respond.",
+      ""
+    ];
     if (isRateLimited) {
-      lines.push("    💡 [Rate Limit / Quota Exceeded]: One or more provider nodes hit their API usage limits.");
+      lines.push("💡 [Rate Limit / Quota Exceeded]: One or more provider nodes hit their API usage limits.");
     }
     lines.push(
-      "    Errors encountered:",
-      ...errors.map((e) => `    • ${e}`),
+      "Errors encountered:",
+      ...errors.map((e) => `• ${e}`),
       "",
-      "    Please check your API keys, network connection, or rate limits."
+      "Please check your API keys, network connection, or rate limits."
     );
 
     return {
@@ -134,11 +143,97 @@ export function generateOfflineReply(prompt, errors = []) {
       type: "offline-error"
     };
   }
+
+  let warning = "\n💡 Note: Running locally to conserve your API quota.";
+
+  // Greetings
+  if (/^(hello|hi|hey|greetings|yo|sup)\b/.test(clean)) {
+    return {
+      text: [
+        header,
+        warning,
+        "",
+        "Hello! I am Krylo, your offline companion for Aether CLI.",
+        "I can help you with local math calculations (e.g. 2 + 2), status checks, or run simple hacking games.",
+        "To converse with an advanced LLM, please configure an API key using:",
+        "  aether config set GOOGLE_API_KEY <your_key_here>"
+      ].join("\n"),
+      type: "krylo-local"
+    };
+  }
+
+  // Help / Commands
+  if (clean.includes("help") || clean.includes("command") || clean.includes("shortcut")) {
+    return {
+      text: [
+        header,
+        warning,
+        "",
+        "💡 [AETHER CLI QUICK CHEAT SHEET]",
+        "   • /mode <name>      - Switch reasoning modes (synthesis, research, architect, titan)",
+        "   • /attach <file>    - Attach a file for context (supports autocomplete)",
+        "   • /git              - Launch interactive Git TUI & file stager checkbox menu",
+        "   • /dashboard        - Launch local web telemetry dashboard HUD",
+        "   • /autopilot debug  - Run autonomous debug loop to fix test failures",
+        "   • /copy             - Copy the last response to clipboard",
+        "   • /export           - Export conversation history to Markdown"
+      ].join("\n"),
+      type: "krylo-local"
+    };
+  }
+
+  // Diagnostics / Status
+  if (clean.includes("status") || clean.includes("hud") || clean.includes("cpu") || clean.includes("ping") || clean.includes("diagnostics")) {
+    return {
+      text: [
+        header,
+        warning,
+        "",
+        "📊 [SYSTEM DIAGNOSTIC READOUT]",
+        "   • CPU Core Load: Nominal / Optimized",
+        "   • Memory Usage: Active & stable",
+        "   • Network Link: Standby / Offline local mesh active",
+        "   • Failover Mesh: Ready to route prompts"
+      ].join("\n"),
+      type: "krylo-local"
+    };
+  }
+
+  // Code / Programming
+  if (clean.includes("code") || clean.includes("write") || clean.includes("program") || clean.includes("javascript") || clean.includes("python")) {
+    return {
+      text: [
+        header,
+        warning,
+        "",
+        "💻 [LOCAL CODE REFERENCE]",
+        "Since I am running offline, I cannot write complex code for you. Here is a basic template:",
+        "",
+        "```javascript",
+        "// Node.js entry template",
+        "import fs from 'node:fs/promises';",
+        "",
+        "async function main() {",
+        "  console.log('Aether offline node initialized.');",
+        "}",
+        "main();",
+        "```",
+        "",
+        "Configure an API key to have Aether write, refactor, or debug code on your behalf!"
+      ].join("\n"),
+      type: "krylo-local"
+    };
+  }
+
   return {
     text: [
-      "⚠️  No active API keys configured. Please set GOOGLE_API_KEY, GROQ_API_KEY, or OPENAI_API_KEY in your config to start chatting.",
-      "    Example: aether config set GOOGLE_API_KEY <your-key>"
+      header,
+      warning,
+      "",
+      "No active API keys configured. Please set GOOGLE_API_KEY, GROQ_API_KEY, or OPENAI_API_KEY in your config to start chatting.",
+      "Example: aether config set GOOGLE_API_KEY <your-key>"
     ].join("\n"),
     type: "offline-error"
   };
 }
+

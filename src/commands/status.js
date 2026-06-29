@@ -40,7 +40,7 @@ export default {
     console.log("");
     console.log(colors.accent("  ◈ Local Fallbacks:"));
     console.log(keyValue("    Math Solver", colors.success("✓ Active")));
-    console.log(keyValue("    Offline Fallback", colors.success("✓ Standing By")));
+    console.log(keyValue("    Krylo Companion", colors.success("✓ Standing By")));
 
     console.log("");
     console.log(colors.accent("  ◈ Failover Mesh:"));

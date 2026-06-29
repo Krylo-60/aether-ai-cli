@@ -81,4 +81,18 @@ test("Offline Math Fallback & Krylo Suite", async (t) => {
     assert.strictEqual(gameIntro.type, "mainframe-game");
     assert.ok(gameIntro.text.includes("Objective: Bypass security"));
   });
+
+  await t.test("generateOfflineReply Krylo greetings and help sub-modes", () => {
+    const helloRes = generateOfflineReply("hello");
+    assert.strictEqual(helloRes.type, "krylo-local");
+    assert.ok(helloRes.text.includes("Hello! I am Krylo"));
+
+    const helpRes = generateOfflineReply("show help and shortcuts");
+    assert.strictEqual(helpRes.type, "krylo-local");
+    assert.ok(helpRes.text.includes("AETHER CLI QUICK CHEAT SHEET"));
+
+    const statusRes = generateOfflineReply("status");
+    assert.strictEqual(statusRes.type, "krylo-local");
+    assert.ok(statusRes.text.includes("SYSTEM DIAGNOSTIC READOUT"));
+  });
 });

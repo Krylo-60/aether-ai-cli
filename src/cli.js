@@ -612,7 +612,7 @@ async function handleSetup() {
     console.log("  " + colors.muted("Start chatting: ") + colors.accent("aether chat"));
     console.log("  " + colors.muted("Quick query: ") + colors.accent('aether ask "Hello!"'));
   } else {
-    console.log("\n  " + colors.warning("No providers configured. Aether will use local offline fallback mode."));
+    console.log("\n  " + colors.warning("No providers configured. Aether will use Krylo fallback mode."));
     console.log("  " + colors.muted("Run ") + colors.accent("aether setup") + colors.muted(" again anytime."));
   }
   console.log("");

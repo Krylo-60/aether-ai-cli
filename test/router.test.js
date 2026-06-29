@@ -139,7 +139,7 @@ test("Universal AI Router Suite", async (t) => {
       throw new Error("Fetch should not be called");
     };
 
-    const result = await routePrompt("status", "Sys prompt", {});
+    const result = await routePrompt("unrelated query", "Sys prompt", {});
     assert.strictEqual(result.provider, "offline-fallback");
     assert.strictEqual(result.node, 0);
     assert.strictEqual(result.type, "offline-error");

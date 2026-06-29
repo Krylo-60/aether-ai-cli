@@ -1,3 +1,9 @@
+# Aether CLI v1.5.1 Highlights
+- **Krylo Offline Companion Restored**:
+  - Restored the local Krylo companion bot fallback when no API keys are configured or all configured providers fail.
+  - Re-implemented the fallback logic to converse in helpful, natural English instead of sci-fi gibberish/jargon.
+  - Added greetings, cheat sheets, system diagnostics, and code-skeleton generators to the offline responder.
+
 # Aether CLI v1.5.0 Highlights
 - **Decoupled Dynamic Plugin Registry**:
   - Refactored the core chat loops and entry points to dynamically load commands as modular ES modules from a dedicated registry.

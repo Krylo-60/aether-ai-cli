@@ -1,3 +1,8 @@
+# Aether CLI v1.5.2 Highlights
+- **Expanded Autopilot Safe Commands**:
+  - Whitelisted `python3` and `py` launcher versions/readouts as safe commands.
+  - Allowed commands like `python3 --version`, `py --version`, `py -0p`, and `py -3.12 --version` to run instantly without prompting for permission in autopilot modes.
+
 # Aether CLI v1.5.1 Highlights
 - **Krylo Offline Companion Restored**:
   - Restored the local Krylo companion bot fallback when no API keys are configured or all configured providers fail.

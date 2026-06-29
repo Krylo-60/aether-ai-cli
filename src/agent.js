@@ -30,18 +30,15 @@ Rules:
 - Never output or format responses using local output prefixes like '🤖 [LOCAL MATH SOLVER]' or offline fallback banners. Respond naturally as the assistant.
 `;
 
-/**
- * Checks if a command is safe (read-only/inspection).
- * @param {string} cmd
- * @returns {boolean}
- */
 export function isSafeCommand(cmd) {
   const safePatterns = [
     /^git\s+(status|diff|log|branch|show)/i,
     /^(ls|dir|pwd)(\s+|$)/i,
     /^(cat|type|head|tail)(\s+|$)/i,
     /^(npm|yarn|pnpm)\s+test(\s+|$)/i,
-    /^(node|npm|git|yarn|pnpm|python|pip)\s+(--version|-v)(\s+|$)/i,
+    /^(node|npm|git|yarn|pnpm|python\d*|py|pip)\s+(--version|-v)(\s+|$)/i,
+    /^py\s+-[0-9a-zA-Z]+(\s+|$)/i, // matches 'py -0p', 'py -0'
+    /^py\s+-\d+(\.\d+)*\s+(--version|-v)(\s+|$)/i, // matches 'py -3.12 --version'
   ];
   return safePatterns.some((pattern) => pattern.test(cmd.trim()));
 }

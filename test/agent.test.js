@@ -15,6 +15,10 @@ test("Agent Autopilot Engine Suite", async (t) => {
     assert.strictEqual(isSafeCommand("dir -a"), true);
     assert.strictEqual(isSafeCommand("npm test"), true);
     assert.strictEqual(isSafeCommand("node -v"), true);
+    assert.strictEqual(isSafeCommand("python3 --version"), true);
+    assert.strictEqual(isSafeCommand("py --version"), true);
+    assert.strictEqual(isSafeCommand("py -0p"), true);
+    assert.strictEqual(isSafeCommand("py -3.12 --version"), true);
   });
 
   await t.test("isSafeCommand classifies destructive/unsafe commands as unsafe", () => {

@@ -1,3 +1,9 @@
+# Aether CLI v1.5.0 Highlights
+- **Decoupled Dynamic Plugin Registry**:
+  - Refactored the core chat loops and entry points to dynamically load commands as modular ES modules from a dedicated registry.
+  - Added new `/github` and `/teamwork-preview` commands as isolated modules.
+  - Retained clean visual design layout and implemented 102 passing tests with 100% test coverage.
+
 # Aether CLI v1.4.9 Highlights
 - **Interactive `/goal` Command**:
   - Implements the new `/goal <task>` interactive command.

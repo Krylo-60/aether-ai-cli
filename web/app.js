@@ -273,6 +273,23 @@ function selectVersion(ver) {
       </div>
     </div>
     
+    <div class="version-install-boxes">
+      <div class="install-box">
+        <span class="install-label">INSTALL FROM NPM</span>
+        <div class="copy-field">
+          <code>npm install -g @krishivpb60/aether-ai-cli@${rel.version.replace("v", "")}</code>
+          <button class="copy-btn" onclick="copyText('npm install -g @krishivpb60/aether-ai-cli@${rel.version.replace(&quot;v&quot;, &quot;&quot;)}', this)">COPY</button>
+        </div>
+      </div>
+      <div class="install-box">
+        <span class="install-label">INSTALL FROM PYPI</span>
+        <div class="copy-field">
+          <code>pip install aether-ai-agent-cli==${rel.version.replace("v", "")}</code>
+          <button class="copy-btn" onclick="copyText('pip install aether-ai-agent-cli==${rel.version.replace(&quot;v&quot;, &quot;&quot;)}', this)">COPY</button>
+        </div>
+      </div>
+    </div>
+    
     <p class="detail-summary">${rel.summary}</p>
     
     <div class="detail-highlights">

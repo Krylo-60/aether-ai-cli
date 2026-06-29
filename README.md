@@ -197,6 +197,8 @@ Inside interactive chat mode, use these slash commands:
 | `/history-clear` | Clear saved persistent chat history |
 | `/autopilot <mode\|debug [cmd]>` | View/switch autopilot safety level or run autonomous debug loop |
 | `/git` | Launch interactive cyberpunk Git TUI and file stager checkbox menu |
+| `/github <status\|issues\|prs>` | Git/GitHub orchestration, auto-staging, semantic AI commit generation, and remote sync |
+| `/teamwork-preview` | Render real-time multi-agent matrix status dashboard with heartbeats & tasks |
 | `/dashboard` | Spawn zero-dependency local web server and launch telemetry dashboard HUD |
 | `/mic` | Record audio voice input from microphone and transcribe to text |
 | `/tokens` | View detailed session token usage and exchanges telemetry |

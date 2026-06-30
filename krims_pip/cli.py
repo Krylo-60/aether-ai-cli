@@ -7,15 +7,15 @@ def main():
     # Find the Node.js entry point absolute path inside aether_pip/node_project
     script_dir = os.path.dirname(os.path.abspath(__file__))
     node_project_dir = os.path.join(script_dir, "node_project")
-    aether_js = os.path.join(node_project_dir, "bin", "aether.js")
+    krims_code_js = os.path.join(node_project_dir, "bin", "krims-code.js")
     
     # If not found globally, check dev layout relative to current working directory
-    if not os.path.exists(aether_js):
-        aether_js = os.path.join(os.getcwd(), "bin", "aether.js")
+    if not os.path.exists(krims_code_js):
+        krims_code_js = os.path.join(os.getcwd(), "bin", "krims-code.js")
         node_project_dir = os.getcwd()
 
     if not shutil.which("node"):
-        print("Error: Node.js is required to run Aether AI CLI.", file=sys.stderr)
+        print("Error: Node.js is required to run Krims Code CLI.", file=sys.stderr)
         print("Please install Node.js (https://nodejs.org) and try again.", file=sys.stderr)
         sys.exit(1)
 
@@ -34,16 +34,16 @@ def main():
         subprocess.run([npm_cmd, "install", "--no-audit", "--no-fund"], cwd=node_project_dir, shell=(os.name == "nt"))
 
     try:
-        # Run node aether.js passing all command line arguments
-        os.environ["AETHER_PACKAGER"] = "pip"
-        cmd = ["node", aether_js] + sys.argv[1:]
+        # Run node krims-code.js passing all command line arguments
+        os.environ["KRIMS_PACKAGER"] = "pip"
+        cmd = ["node", krims_code_js] + sys.argv[1:]
         result = subprocess.run(cmd, check=False)
         sys.exit(result.returncode)
     except KeyboardInterrupt:
         print("\nSession terminated by user.")
         sys.exit(0)
     except Exception as e:
-        print(f"Error running Aether: {e}", file=sys.stderr)
+        print(f"Error running Krims Code: {e}", file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":

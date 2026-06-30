@@ -18,11 +18,7 @@ import { join } from "node:path";
 import { homedir } from "node:os";
 import { getAllConfigKeys } from "./ai/providers.js";
 
-const CONFIG_DIR = existsSync(join(homedir(), ".krims"))
-  ? join(homedir(), ".krims")
-  : (existsSync(join(homedir(), ".aether"))
-    ? join(homedir(), ".aether")
-    : join(homedir(), ".krims"));
+const CONFIG_DIR = join(homedir(), ".aether");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 
 const SENSITIVE_PATTERNS = ["KEY", "TOKEN", "SECRET"];

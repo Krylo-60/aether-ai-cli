@@ -10,7 +10,6 @@ import chalk from "chalk";
 import { colors, separator, modeBadge, getIcon } from "./theme.js";
 import { getActiveProviders } from "../ai/providers.js";
 import { MODES } from "../modes.js";
-import { getConfigPath } from "../config.js";
 
 // ANSI escape code strip regex
 const ANSI_REGEX = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;
@@ -21,7 +20,7 @@ function getVisibleLength(str) {
 
 function loadConfigSync() {
   try {
-    const configPath = getConfigPath();
+    const configPath = join(homedir(), ".aether", "config.json");
     if (existsSync(configPath)) {
       const raw = readFileSync(configPath, "utf-8");
       return JSON.parse(raw);
@@ -46,12 +45,12 @@ export function showBanner(currentMode = "titan") {
   const logo = [
     "",
     c1("  ╔═══════════════════════════════════════════════════════════╗"),
-    c1("  ║") + c2("     ██╗  ██╗██████╗ ██╗███╗   ███╗███████╗             ") + c1("║"),
-    c1("  ║") + c2("     ██║ ██╔╝██╔══██╗██║████╗ ████║██╔════╝             ") + c1("║"),
-    c1("  ║") + c1("     █████╔╝ ██████╔╝██║██╔████╔██║███████╗             ") + c1("║"),
-    c1("  ║") + c3("     ██╔═██╗ ██╔══██╗██║██║╚██╔╝██║╚════██║             ") + c1("║"),
-    c1("  ║") + c3("     ██║  ██╗██║  ██║██║██║ ╚═╝ ██║███████║             ") + c1("║"),
-    c1("  ║") + dim("     ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝     ╚═╝╚══════╝             ") + c1("║"),
+    c1("  ║") + c2("     █████╗ ███████╗████████╗██╗  ██╗███████╗██████╗    ") + c1("║"),
+    c1("  ║") + c2("    ██╔══██╗██╔════╝╚══██╔══╝██║  ██║██╔════╝██╔══██╗   ") + c1("║"),
+    c1("  ║") + c1("    ███████║█████╗     ██║   ████████║█████╗  ██████╔╝   ") + c1("║"),
+    c1("  ║") + c3("    ██╔══██║██╔══╝     ██║   ██╔══██║██╔══╝  ██╔══██╗   ") + c1("║"),
+    c1("  ║") + c3("    ██║  ██║███████╗   ██║   ██║  ██║███████╗██║  ██║   ") + c1("║"),
+    c1("  ║") + dim("    ╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ") + c1("║"),
     c1("  ╚═══════════════════════════════════════════════════════════╝"),
   ].join("\n");
 
@@ -133,9 +132,9 @@ export function showBanner(currentMode = "titan") {
     return `${label}${spaces}${value}`;
   }
 
-  const packagerText = process.env.KRIMS_PACKAGER === "pip"
-    ? "pip (krims-code-cli)"
-    : "npm (@krishivpb60/krims-code-cli)";
+  const packagerText = process.env.AETHER_PACKAGER === "pip"
+    ? "pip (aether-ai-agent-cli)"
+    : "npm (@krishivpb60/aether-ai-cli)";
 
   const rows = [
     formatRow(` ${colors.muted(getIcon("workspace", config) + "Workspace")}`, colors.text(workspaceValue)),
@@ -145,7 +144,7 @@ export function showBanner(currentMode = "titan") {
     formatRow(` ${colors.muted(getIcon("package", config) + "Packager")}`, colors.text(packagerText)),
   ];
 
-  console.log(`\n  ⚡ ${colors.brand("KRIMS CODE COMMAND STATION v" + version)} • Welcome back, ${colors.accent(username)}`);
+  console.log(`\n  ⚡ ${colors.brand("AETHER COMMAND STATION v" + version)} • Welcome back, ${colors.accent(username)}`);
 
   // Draw Box
   const leftLine = "═".repeat(2);

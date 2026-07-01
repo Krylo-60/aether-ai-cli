@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════
 // Krims Code AI CLI — Interactive Chat Loop
 // Universal AI Gateway & Cyberpunk Command Center
 // ═══════════════════════════════════════════════════════════
@@ -307,7 +307,7 @@ export async function startChat(options = {}) {
 
         // Display response
         console.log("");
-        console.log(label.krims-code + " " + providerBadge(result));
+        console.log(label.krims + " " + providerBadge(result));
         console.log(separator("─"));
         console.log("");
 
@@ -1427,7 +1427,7 @@ async function handleCommitInsideChat_unused(ctx) {
     const onToken = (token) => {
       if (firstToken) {
         firstToken = false;
-        process.stdout.write(label.krims-code + " Suggested Commit Message: " + colors.success(token));
+        process.stdout.write(label.krims + " Suggested Commit Message: " + colors.success(token));
       } else {
         process.stdout.write(colors.success(token));
       }
@@ -1553,7 +1553,7 @@ async function executeAISpecialCommand(prompt, specialLabel, ctx) {
     if (!hasStarted) {
       hasStarted = true;
       firstTokenTime = Date.now();
-      process.stdout.write("\n" + label.krims-code + " " + colors.accent(specialLabel) + "\n" + separator("─") + "\n\n");
+      process.stdout.write("\n" + label.krims + " " + colors.accent(specialLabel) + "\n" + separator("─") + "\n\n");
     }
     process.stdout.write(colors.success(token));
     responseText += token;
@@ -1877,7 +1877,7 @@ Rules:
     }
 
     console.log("");
-    console.log(label.krims-code + " " + providerBadge(result));
+    console.log(label.krims + " " + providerBadge(result));
     console.log(separator("─"));
     console.log("");
 
@@ -2058,7 +2058,7 @@ Rules:
     }
 
     console.log("");
-    console.log(label.krims-code + " " + providerBadge(result));
+    console.log(label.krims + " " + providerBadge(result));
     console.log(separator("─"));
     console.log("");
 

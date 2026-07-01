@@ -1,5 +1,5 @@
-// ═══════════════════════════════════════════════════════════
-// AETHER AI CLI — Google Gemini API Provider
+﻿// ═══════════════════════════════════════════════════════════
+// Krims Code AI CLI — Google Gemini API Provider
 // ═══════════════════════════════════════════════════════════
 
 const BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";

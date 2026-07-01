@@ -1,11 +1,11 @@
-// ═══════════════════════════════════════════════════════════
-// AETHER AI CLI — Spinner Helpers
+﻿// ═══════════════════════════════════════════════════════════
+// Krims Code AI CLI — Spinner Helpers
 // ═══════════════════════════════════════════════════════════
 
 import ora from "ora";
 
 /**
- * Creates a styled spinner with the Aether theme.
+ * Creates a styled spinner with the KRIMS CODE theme.
  * @param {string} text - Spinner label text
  * @returns {object} An ora spinner instance
  */

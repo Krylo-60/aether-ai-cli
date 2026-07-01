@@ -1,5 +1,5 @@
-// ═══════════════════════════════════════════════════════════
-// AETHER AI CLI — ASCII Art Welcome Banner
+﻿// ═══════════════════════════════════════════════════════════
+// Krims Code AI CLI — ASCII Art Welcome Banner
 // ═══════════════════════════════════════════════════════════
 
 import os from "node:os";
@@ -20,7 +20,7 @@ function getVisibleLength(str) {
 
 function loadConfigSync() {
   try {
-    const configPath = join(homedir(), ".aether", "config.json");
+    const configPath = join(homedir(), ".KRIMS CODE", "config.json");
     if (existsSync(configPath)) {
       const raw = readFileSync(configPath, "utf-8");
       return JSON.parse(raw);
@@ -32,7 +32,7 @@ function loadConfigSync() {
 }
 
 /**
- * Displays the cyberpunk-styled Aether ASCII art banner and OpenCode-style system info.
+ * Displays the cyberpunk-styled KRIMS CODE ASCII art banner and OpenCode-style system info.
  * @param {string} [currentMode='titan'] - The currently active mode name
  */
 export function showBanner(currentMode = "titan") {
@@ -132,9 +132,9 @@ export function showBanner(currentMode = "titan") {
     return `${label}${spaces}${value}`;
   }
 
-  const packagerText = process.env.AETHER_PACKAGER === "pip"
-    ? "pip (aether-ai-agent-cli)"
-    : "npm (@krishivpb60/aether-ai-cli)";
+  const packagerText = process.env.KRIMS CODE_PACKAGER === "pip"
+    ? "pip (KRIMS CODE-ai-agent-cli)"
+    : "npm (@krishivpb60/KRIMS CODE-ai-cli)";
 
   const rows = [
     formatRow(` ${colors.muted(getIcon("workspace", config) + "Workspace")}`, colors.text(workspaceValue)),
@@ -144,7 +144,7 @@ export function showBanner(currentMode = "titan") {
     formatRow(` ${colors.muted(getIcon("package", config) + "Packager")}`, colors.text(packagerText)),
   ];
 
-  console.log(`\n  ⚡ ${colors.brand("AETHER COMMAND STATION v" + version)} • Welcome back, ${colors.accent(username)}`);
+  console.log(`\n  ⚡ ${colors.brand("KRIMS CODE COMMAND STATION v" + version)} • Welcome back, ${colors.accent(username)}`);
 
   // Draw Box
   const leftLine = "═".repeat(2);

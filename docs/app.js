@@ -1,9 +1,9 @@
-// KRIMS CODE CLI — RELEASE HUB — FULLY FUNCTIONAL LIVE DATA ENGINE
+﻿// KRIMS CODE CLI — RELEASE HUB — FULLY FUNCTIONAL LIVE DATA ENGINE
 // Fetches real releases from GitHub API, npm registry, and PyPI
 
-const GITHUB_REPO = "Krylo-60/aether-ai-cli";
+const GITHUB_REPO = "Krylo-60/krims-code-cli";
 const NPM_PACKAGE = "@krishivpb60/krims-code-cli";
-const PYPI_PACKAGE = "aether-ai-agent-cli";
+const PYPI_PACKAGE = "krims-code-agent-cli";
 
 // ══════════════════════════════════════════════════════
 //  State
@@ -257,8 +257,8 @@ function selectVersion(ver) {
       <div class="install-box">
         <span class="install-label">INSTALL FROM PYPI</span>
         <div class="copy-field">
-          <code>pip install aether-ai-agent-cli==${rel.cleanVer}</code>
-          <button class="copy-btn" onclick="copyText('pip install aether-ai-agent-cli==${rel.cleanVer}', this)">COPY</button>
+          <code>pip install krims-code-agent-cli==${rel.cleanVer}</code>
+          <button class="copy-btn" onclick="copyText('pip install krims-code-agent-cli==${rel.cleanVer}', this)">COPY</button>
         </div>
       </div>
     </div>

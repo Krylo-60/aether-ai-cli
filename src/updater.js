@@ -1,5 +1,5 @@
-// ═══════════════════════════════════════════════════════════
-// AETHER AI CLI — Automated Update & Highlights Engine
+﻿// ═══════════════════════════════════════════════════════════
+// Krims Code AI CLI — Automated Update & Highlights Engine
 // Checks NPM registry, updates packages, and renders release details.
 // ═══════════════════════════════════════════════════════════
 
@@ -44,7 +44,7 @@ export async function showReleaseHighlights(version) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 2000);
 
-    const res = await fetch("https://raw.githubusercontent.com/Krylo-60/aether-ai-cli/main/HIGHLIGHTS.md", {
+    const res = await fetch("https://raw.githubusercontent.com/Krylo-60/krims-code-cli/main/HIGHLIGHTS.md", {
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
@@ -53,7 +53,7 @@ export async function showReleaseHighlights(version) {
     const text = await res.text();
 
     console.log("\n" + separator("━"));
-    console.log(colors.accent.bold(`  ★  AETHER AI CLI v${version} RELEASE HIGHLIGHTS  ★`));
+    console.log(colors.accent.bold(`  ★  Krims Code AI CLI v${version} RELEASE HIGHLIGHTS  ★`));
     console.log(separator("─"));
 
     const lines = text.split("\n");
@@ -63,7 +63,7 @@ export async function showReleaseHighlights(version) {
     for (const line of lines) {
       const trimmed = line.trim();
       if (trimmed.startsWith("#")) {
-        // Matches the version header like "# Aether CLI v1.1.9 Highlights" or similar
+        // Matches the version header like "# Krims Code CLI v1.1.9 Highlights" or similar
         if (trimmed.toLowerCase().includes(`v${version}`)) {
           inReleaseHeader = true;
         } else {
@@ -131,7 +131,7 @@ export async function checkForUpdates(force = false) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 2000);
 
-    const res = await fetch("https://registry.npmjs.org/@krishivpb60/aether-ai-cli/latest", {
+    const res = await fetch("https://registry.npmjs.org/@krishivpb60/krims-code-cli/latest", {
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
@@ -149,10 +149,10 @@ export async function checkForUpdates(force = false) {
       if (autoUpdate || force) {
         console.log("\n" + label.system + " " + colors.brand(`⚡ New version detected! Auto-updating from v${currentVersion} to v${latestVersion}...`));
 
-        const isPip = process.env.AETHER_PACKAGER === "pip";
+        const isPip = process.env.krims-code_PACKAGER === "pip";
         const updateCmd = isPip
-          ? "pip install --upgrade aether-ai-agent-cli"
-          : "npm install -g @krishivpb60/aether-ai-cli";
+          ? "pip install --upgrade krims-code-agent-cli"
+          : "npm install -g @krishivpb60/krims-code-cli";
 
         try {
           const spinner = createSpinner("Installing update").start();
@@ -171,15 +171,15 @@ export async function checkForUpdates(force = false) {
         }
       } else {
         console.log("\n" + label.system + " " + colors.warning(`⚡ A new version (v${latestVersion}) is available!`));
-        const isPip = process.env.AETHER_PACKAGER === "pip";
+        const isPip = process.env.krims-code_PACKAGER === "pip";
         const updateCmd = isPip
-          ? "pip install -U aether-ai-agent-cli"
-          : "npm install -g @krishivpb60/aether-ai-cli";
+          ? "pip install -U krims-code-agent-cli"
+          : "npm install -g @krishivpb60/krims-code-cli";
         console.log(label.system + " " + colors.muted(`To update, run: ${updateCmd}`));
       }
     } else {
       if (force) {
-        console.log(label.system + " " + colors.success(`✓ Aether is already up to date (v${currentVersion}).`));
+        console.log(label.system + " " + colors.success(`✓ Krims Code is already up to date (v${currentVersion}).`));
       }
       // Already on latest version, check if we need to show highlights
       const lastNotified = await getConfigValue("LAST_NOTIFIED_VERSION") || "";

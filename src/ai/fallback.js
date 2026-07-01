@@ -1,5 +1,5 @@
-// ═══════════════════════════════════════════════════════════
-// AETHER AI CLI — Local Fallback Engine
+﻿// ═══════════════════════════════════════════════════════════
+// Krims Code AI CLI — Local Fallback Engine
 // Math Solver & Offline Fallback
 // ═══════════════════════════════════════════════════════════
 
@@ -153,10 +153,10 @@ export function generateOfflineReply(prompt, errors = []) {
         header,
         warning,
         "",
-        "Hello! I am Krylo, your offline companion for Aether CLI.",
+        "Hello! I am Krylo, your offline companion for Krims Code CLI.",
         "I can help you with local math calculations (e.g. 2 + 2), status checks, or run simple hacking games.",
         "To converse with an advanced LLM, please configure an API key using:",
-        "  aether config set GOOGLE_API_KEY <your_key_here>"
+        "  krims-code config set GOOGLE_API_KEY <your_key_here>"
       ].join("\n"),
       type: "krylo-local"
     };
@@ -169,7 +169,7 @@ export function generateOfflineReply(prompt, errors = []) {
         header,
         warning,
         "",
-        "💡 [AETHER CLI QUICK CHEAT SHEET]",
+        "💡 [Krims Code CLI QUICK CHEAT SHEET]",
         "   • /mode <name>      - Switch reasoning modes (synthesis, research, architect, titan)",
         "   • /attach <file>    - Attach a file for context (supports autocomplete)",
         "   • /git              - Launch interactive Git TUI & file stager checkbox menu",
@@ -214,12 +214,12 @@ export function generateOfflineReply(prompt, errors = []) {
         "import fs from 'node:fs/promises';",
         "",
         "async function main() {",
-        "  console.log('Aether offline node initialized.');",
+        "  console.log('Krims Code offline node initialized.');",
         "}",
         "main();",
         "```",
         "",
-        "Configure an API key to have Aether write, refactor, or debug code on your behalf!"
+        "Configure an API key to have Krims Code write, refactor, or debug code on your behalf!"
       ].join("\n"),
       type: "krylo-local"
     };
@@ -231,7 +231,7 @@ export function generateOfflineReply(prompt, errors = []) {
       warning,
       "",
       "No active API keys configured. Please set GOOGLE_API_KEY, GROQ_API_KEY, or OPENAI_API_KEY in your config to start chatting.",
-      "Example: aether config set GOOGLE_API_KEY <your-key>"
+      "Example: krims-code config set GOOGLE_API_KEY <your-key>"
     ].join("\n"),
     type: "offline-error"
   };

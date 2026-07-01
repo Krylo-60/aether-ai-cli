@@ -1,5 +1,5 @@
-// ═══════════════════════════════════════════════════════════
-// AETHER AI CLI — Main CLI Logic & Command Routing
+﻿// ═══════════════════════════════════════════════════════════
+// Krims Code AI CLI — Main CLI Logic & Command Routing
 // Universal AI Gateway — Supports 13+ providers
 // ═══════════════════════════════════════════════════════════
 
@@ -296,7 +296,7 @@ async function handleAsk(prompt, opts) {
         clearStreamedText(filter ? filter.filteredText : streamedText);
       }
       console.log("");
-      console.log(label.aether + " " + colors.dim(`via ${result.provider}${result.model ? ` (${result.model})` : ""} • Node ${result.node}`));
+      console.log(label.krims-code + " " + colors.dim(`via ${result.provider}${result.model ? ` (${result.model})` : ""} • Node ${result.node}`));
       console.log(separator("─"));
       console.log("");
 

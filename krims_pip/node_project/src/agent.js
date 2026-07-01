@@ -1,5 +1,5 @@
-// ═══════════════════════════════════════════════════════════
-// AETHER AI CLI — Agent Autopilot Engine
+﻿// ═══════════════════════════════════════════════════════════
+// Krims Code AI CLI — Agent Autopilot Engine
 // Safe Command Execution, File Sandbox, DuckDuckGo Search
 // ═══════════════════════════════════════════════════════════
 

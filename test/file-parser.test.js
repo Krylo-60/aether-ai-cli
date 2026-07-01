@@ -1,4 +1,4 @@
-import { test, before, after } from "node:test";
+﻿import { test, before, after } from "node:test";
 import assert from "node:assert";
 import { join } from "node:path";
 import { writeFile, mkdir, rm } from "node:fs/promises";
@@ -17,7 +17,7 @@ test("File Parser & Context Suite", async (t) => {
 
   await t.test("parseFile parses a standard .txt file successfully", async () => {
     const filePath = join(tempDir, "test.txt");
-    const content = "Hello World Aether AI";
+    const content = "Hello World Krims Code AI";
     await writeFile(filePath, content, "utf-8");
 
     const parsed = await parseFile(filePath);
@@ -51,7 +51,7 @@ test("File Parser & Context Suite", async (t) => {
 
   await t.test("parseFile parses a .csv file successfully", async () => {
     const filePath = join(tempDir, "test.csv");
-    const content = "id,name\n1,aether\n2,krylo";
+    const content = "id,name\n1,KRIMS CODE\n2,krylo";
     await writeFile(filePath, content, "utf-8");
 
     const parsed = await parseFile(filePath);

@@ -1,5 +1,5 @@
-// ═══════════════════════════════════════════════════════════
-// AETHER AI CLI — Main CLI Logic & Command Routing
+﻿// ═══════════════════════════════════════════════════════════
+// Krims Code AI CLI — Main CLI Logic & Command Routing
 // Universal AI Gateway — Supports 13+ providers
 // ═══════════════════════════════════════════════════════════
 
@@ -59,15 +59,15 @@ const pkg = JSON.parse(readFileSync(join(__dirname, "../package.json"), "utf8"))
 const VERSION = pkg.version;
 
 /**
- * Sets up and runs the Aether CLI.
+ * Sets up and runs the Krims Code CLI.
  * @param {string[]} argv - Process arguments
  */
 export async function createCLI(argv) {
   const program = new Command();
 
   program
-    .name("aether")
-    .description("Aether Core AI v110 — Universal AI Gateway CLI\n  Supports 13+ AI providers • Free & paid models • Local fallbacks")
+    .name("KRIMS CODE")
+    .description("KRIMS CODE Core AI v110 — Universal AI Gateway CLI\n  Supports 13+ AI providers • Free & paid models • Local fallbacks")
     .version(VERSION, "-v, --version");
 
   // ── Chat Command ────────────────────────────────────────
@@ -296,7 +296,7 @@ async function handleAsk(prompt, opts) {
         clearStreamedText(filter ? filter.filteredText : streamedText);
       }
       console.log("");
-      console.log(label.aether + " " + colors.dim(`via ${result.provider}${result.model ? ` (${result.model})` : ""} • Node ${result.node}`));
+      console.log(label.KRIMS CODE + " " + colors.dim(`via ${result.provider}${result.model ? ` (${result.model})` : ""} • Node ${result.node}`));
       console.log(separator("─"));
       console.log("");
 
@@ -400,7 +400,7 @@ async function handleConfigList() {
   const exists = await configExists();
   if (!exists) {
     console.log("\n" + label.config + " " + colors.muted("No config file found."));
-    console.log("  " + colors.muted("Run ") + colors.accent("aether setup") + colors.muted(" for guided setup.\n"));
+    console.log("  " + colors.muted("Run ") + colors.accent("KRIMS CODE setup") + colors.muted(" for guided setup.\n"));
     return;
   }
 
@@ -469,8 +469,8 @@ async function handleProviders(opts) {
   }
 
   console.log(separator("─"));
-  console.log("  " + colors.muted("Configure: ") + colors.accent("aether config set <KEY_NAME> <your-key>"));
-  console.log("  " + colors.muted("Quick setup: ") + colors.accent("aether setup"));
+  console.log("  " + colors.muted("Configure: ") + colors.accent("KRIMS CODE config set <KEY_NAME> <your-key>"));
+  console.log("  " + colors.muted("Quick setup: ") + colors.accent("KRIMS CODE setup"));
   console.log("");
 }
 
@@ -509,12 +509,12 @@ function handleModels(providerName) {
     console.log("  " + (isDefault ? colors.accent3("★ " + m + " (default)") : colors.text("  " + m)));
   }
   console.log("");
-  console.log("  " + colors.muted("Override: ") + colors.accent(`aether ask --model ${provider.models[0]} "prompt"`) + "\n");
+  console.log("  " + colors.muted("Override: ") + colors.accent(`KRIMS CODE ask --model ${provider.models[0]} "prompt"`) + "\n");
 }
 
 function handleModes() {
   console.log("");
-  console.log(colors.brand("  ◈ AETHER REASONING MODES"));
+  console.log(colors.brand("  ◈ KRIMS CODE REASONING MODES"));
   console.log(separator("─"));
   console.log("");
 
@@ -544,7 +544,7 @@ async function handleSetup() {
   const { createInterface } = await import("node:readline");
 
   console.log("");
-  console.log(colors.brand("  ⚡ AETHER SETUP WIZARD"));
+  console.log(colors.brand("  ⚡ KRIMS CODE SETUP WIZARD"));
   console.log(separator("─"));
   console.log("");
   console.log(colors.text("  Configure your AI providers. Press Enter to skip any provider."));
@@ -609,18 +609,18 @@ async function handleSetup() {
   console.log(separator("─", 62));
   if (configured > 0) {
     console.log("\n  " + colors.success(`✓ Setup complete! ${configured} provider(s) configured.`));
-    console.log("  " + colors.muted("Start chatting: ") + colors.accent("aether chat"));
-    console.log("  " + colors.muted("Quick query: ") + colors.accent('aether ask "Hello!"'));
+    console.log("  " + colors.muted("Start chatting: ") + colors.accent("KRIMS CODE chat"));
+    console.log("  " + colors.muted("Quick query: ") + colors.accent('KRIMS CODE ask "Hello!"'));
   } else {
-    console.log("\n  " + colors.warning("No providers configured. Aether will use Krylo fallback mode."));
-    console.log("  " + colors.muted("Run ") + colors.accent("aether setup") + colors.muted(" again anytime."));
+    console.log("\n  " + colors.warning("No providers configured. KRIMS CODE will use Krylo fallback mode."));
+    console.log("  " + colors.muted("Run ") + colors.accent("KRIMS CODE setup") + colors.muted(" again anytime."));
   }
   console.log("");
 }
 
 function showMiniBanner() {
   console.log("");
-  console.log(colors.brand("  ⚡ Aether Core AI v110") + colors.dim(" — Universal AI Gateway"));
+  console.log(colors.brand("  ⚡ KRIMS CODE Core AI v110") + colors.dim(" — Universal AI Gateway"));
   console.log(separator("─"));
   console.log("");
 }

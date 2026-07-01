@@ -1,4 +1,4 @@
-import { test, before, after } from "node:test";
+﻿import { test, before, after } from "node:test";
 import assert from "node:assert";
 import { tmpdir } from "node:os";
 
@@ -79,7 +79,7 @@ test("Git TUI Suite", async (t) => {
       await p;
 
       const fullOutput = written.join("");
-      assert.ok(fullOutput.includes("🌿 AETHER INTERACTIVE GIT TUI"));
+      assert.ok(fullOutput.includes("🌿 KRIMS CODE INTERACTIVE GIT TUI"));
       assert.ok(fullOutput.includes("Commit Graph & History:"));
       assert.ok(fullOutput.includes("Modified Files:"));
       assert.ok(fullOutput.includes("Hotkeys:"));

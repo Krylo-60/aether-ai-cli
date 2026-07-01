@@ -1,5 +1,5 @@
-// ═══════════════════════════════════════════════════════════
-// AETHER AI CLI — ASCII Art Welcome Banner
+﻿// ═══════════════════════════════════════════════════════════
+// Krims Code AI CLI — ASCII Art Welcome Banner
 // ═══════════════════════════════════════════════════════════
 
 import os from "node:os";
@@ -33,7 +33,7 @@ function loadConfigSync() {
 }
 
 /**
- * Displays the cyberpunk-styled Aether ASCII art banner and OpenCode-style system info.
+ * Displays the cyberpunk-styled Krims Code ASCII art banner and OpenCode-style system info.
  * @param {string} [currentMode='titan'] - The currently active mode name
  */
 export function showBanner(currentMode = "titan") {

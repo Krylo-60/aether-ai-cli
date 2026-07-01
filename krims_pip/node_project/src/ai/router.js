@@ -1,5 +1,5 @@
-// ═══════════════════════════════════════════════════════════
-// AETHER AI CLI — Universal AI Router with Failover Mesh
+﻿// ═══════════════════════════════════════════════════════════
+// Krims Code AI CLI — Universal AI Router with Failover Mesh
 // Routes through ALL configured providers automatically
 // ═══════════════════════════════════════════════════════════
 

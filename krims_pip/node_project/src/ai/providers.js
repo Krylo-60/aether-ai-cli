@@ -1,5 +1,5 @@
-// ═══════════════════════════════════════════════════════════
-// AETHER AI CLI — Universal Provider Registry
+﻿// ═══════════════════════════════════════════════════════════
+// Krims Code AI CLI — Universal Provider Registry
 // Supports ANY OpenAI-compatible API + custom providers
 // ═══════════════════════════════════════════════════════════
 

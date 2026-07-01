@@ -1,4 +1,4 @@
-import { test } from "node:test";
+﻿import { test } from "node:test";
 import assert from "node:assert";
 import {
   detectMathExpression,
@@ -89,7 +89,7 @@ test("Offline Math Fallback & Krylo Suite", async (t) => {
 
     const helpRes = generateOfflineReply("show help and shortcuts");
     assert.strictEqual(helpRes.type, "krylo-local");
-    assert.ok(helpRes.text.includes("AETHER CLI QUICK CHEAT SHEET"));
+    assert.ok(helpRes.text.includes("Krims Code CLI QUICK CHEAT SHEET"));
 
     const statusRes = generateOfflineReply("status");
     assert.strictEqual(statusRes.type, "krylo-local");

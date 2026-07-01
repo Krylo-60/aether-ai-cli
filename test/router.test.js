@@ -1,4 +1,4 @@
-import { test, beforeEach, afterEach } from "node:test";
+﻿import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
 import { routePrompt } from "../src/ai/router.js";
 
@@ -178,7 +178,7 @@ test("Universal AI Router Suite", async (t) => {
   await t.test("routePrompt forwards chat history to OpenAI and Google payloads correctly", async () => {
     const history = [
       { role: "user", content: "What is your name?" },
-      { role: "assistant", content: "I am Aether." }
+      { role: "assistant", content: "I am KRIMS CODE." }
     ];
 
     // 1. Test Groq (OpenAI-compatible) receives history
@@ -198,7 +198,7 @@ test("Universal AI Router Suite", async (t) => {
     assert.deepStrictEqual(groqBody.messages, [
       { role: "system", content: "Sys prompt" },
       { role: "user", content: "What is your name?" },
-      { role: "assistant", content: "I am Aether." },
+      { role: "assistant", content: "I am KRIMS CODE." },
       { role: "user", content: "How are you?" }
     ]);
 
@@ -220,7 +220,7 @@ test("Universal AI Router Suite", async (t) => {
     const googleBody = JSON.parse(fetchCalls[0].options.body);
     assert.deepStrictEqual(googleBody.contents, [
       { role: "user", parts: [{ text: "What is your name?" }] },
-      { role: "model", parts: [{ text: "I am Aether." }] },
+      { role: "model", parts: [{ text: "I am KRIMS CODE." }] },
       { role: "user", parts: [{ text: "How are you?" }] }
     ]);
   });

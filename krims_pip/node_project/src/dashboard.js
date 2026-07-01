@@ -1,5 +1,5 @@
-// ═══════════════════════════════════════════════════════════
-// AETHER AI CLI — Cyberpunk Web Telemetry Dashboard Server
+﻿// ═══════════════════════════════════════════════════════════
+// Krims Code AI CLI — Cyberpunk Web Telemetry Dashboard Server
 // Lightweight server using node:http to host dashboard diagnostics
 // ═══════════════════════════════════════════════════════════
 

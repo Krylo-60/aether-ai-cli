@@ -1,5 +1,5 @@
-// ═══════════════════════════════════════════════════════════
-// AETHER AI CLI — Universal API Caller
+﻿// ═══════════════════════════════════════════════════════════
+// Krims Code AI CLI — Universal API Caller
 // Handles OpenAI-compatible, Google, Anthropic, and Cohere APIs
 // ═══════════════════════════════════════════════════════════
 
@@ -39,7 +39,7 @@ export async function callOpenAICompatible(prompt, systemPrompt, apiKey, baseUrl
   // OpenRouter requires extra headers
   if (baseUrl.includes("openrouter.ai")) {
     headers["HTTP-Referer"] = "https://github.com/Krylo-60/aether-ai-cli";
-    headers["X-Title"] = "Aether AI CLI";
+    headers["X-Title"] = "Krims Code AI CLI";
   }
 
   const response = await fetch(baseUrl, {

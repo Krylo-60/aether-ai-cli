@@ -1,10 +1,10 @@
-import sys
+﻿import sys
 import os
 import subprocess
 import shutil
 
 def main():
-    # Find the Node.js entry point absolute path inside aether_pip/node_project
+    # Find the Node.js entry point absolute path inside KRIMS CODE_pip/node_project
     script_dir = os.path.dirname(os.path.abspath(__file__))
     node_project_dir = os.path.join(script_dir, "node_project")
     krims_code_js = os.path.join(node_project_dir, "bin", "krims-code.js")

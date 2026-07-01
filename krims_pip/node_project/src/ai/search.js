@@ -1,4 +1,4 @@
-import { readdirSync, statSync, readFileSync } from "node:fs";
+﻿import { readdirSync, statSync, readFileSync } from "node:fs";
 import { join, sep, relative } from "node:path";
 
 const IGNORE_DIRS = new Set([
@@ -7,8 +7,8 @@ const IGNORE_DIRS = new Set([
   "build",
   "dist",
   ".agents",
-  "aether_ai_agent_cli.egg-info",
-  "aether_ai_cli.egg-info",
+  "KRIMS CODE_ai_agent_cli.egg-info",
+  "KRIMS CODE_ai_cli.egg-info",
   "temp-test-home",
   "temp-test-home-updater",
   "temp-test-home-search"

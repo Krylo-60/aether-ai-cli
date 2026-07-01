@@ -74,7 +74,7 @@ test("Configuration Loading Suite", async (t) => {
   await t.test("getConfigPath should return path inside temporary home", () => {
     const path = getConfigPath();
     assert.ok(path.startsWith(tempHome));
-    assert.ok(path.endsWith(join(".aether", "config.json")));
+    assert.ok(path.endsWith(join(".krims", "config.json")));
   });
 
   await t.test("loadConfig should return empty object if file does not exist", async () => {
@@ -177,7 +177,7 @@ test("Configuration Loading Suite", async (t) => {
   await t.test("listSessions, switchSession, and startNewSession handle multi-session histories", async () => {
     // Clean history directory first to avoid leftover test files
     const fs = await import("node:fs");
-    const historyDir = join(tempHome, ".aether", "history");
+    const historyDir = join(tempHome, ".krims-code", "history");
     if (fs.existsSync(historyDir)) {
       const files = fs.readdirSync(historyDir);
       for (const f of files) {

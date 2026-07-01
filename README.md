@@ -1,8 +1,8 @@
-# Aether AI CLI
+﻿# Krims Code AI CLI
 
 > ⚡ **Universal AI Gateway** — 13+ providers, free & paid models, cyberpunk terminal
 
-[![npm version](https://img.shields.io/npm/v/@krishivpb60/aether-ai-cli.svg)](https://www.npmjs.com/package/@krishivpb60/aether-ai-cli)
+[![npm version](https://img.shields.io/npm/v/@krishivpb60/krims-code-cli.svg)](https://www.npmjs.com/package/@krishivpb60/krims-code-cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-cyan.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/Node.js-≥18.0.0-green.svg)](https://nodejs.org)
 
@@ -17,7 +17,7 @@
   ╚═══════════════════════════════════════════════════════════╝
 ```
 
-**Aether Core AI v110** is a production-ready, globally installable command-line AI assistant that connects to **any AI provider in the world** — both free and paid. Chat with GPT-4o, Claude, Gemini, Llama, Mixtral, DeepSeek, and 50+ more models, all from one terminal.
+**Krims Code Core AI v110** is a production-ready, globally installable command-line AI assistant that connects to **any AI provider in the world** — both free and paid. Chat with GPT-4o, Claude, Gemini, Llama, Mixtral, DeepSeek, and 50+ more models, all from one terminal.
 
 ---
 
@@ -53,27 +53,27 @@
 ### Install globally via npm
 
 ```bash
-npm install -g @krishivpb60/aether-ai-cli
+npm install -g @krishivpb60/krims-code-cli
 ```
 
 ### Or run directly with npx
 
 ```bash
-npx @krishivpb60/aether-ai-cli chat
+npx @krishivpb60/krims-code-cli chat
 ```
 
 ### Or install via pip (Python wrapper)
 
 ```bash
-pip install aether-ai-agent-cli
+pip install krims-code-agent-cli
 # Run via terminal:
-aether-pip chat
+Krims Code-pip chat
 ```
 
 ### Setup (Interactive Wizard)
 
 ```bash
-aether setup
+Krims Code setup
 ```
 
 The wizard walks you through configuring providers — **start with free ones!**
@@ -82,25 +82,25 @@ The wizard walks you through configuring providers — **start with free ones!**
 
 ```bash
 # Free providers (recommended to start)
-aether config set GROQ_API_KEY gsk_your_key_here
-aether config set GOOGLE_API_KEY AIza_your_key_here
-aether config set OPENROUTER_API_KEY sk-or-your_key_here
+krims-code config set GROQ_API_KEY gsk_your_key_here
+krims-code config set GOOGLE_API_KEY AIza_your_key_here
+krims-code config set OPENROUTER_API_KEY sk-or-your_key_here
 
 # Paid providers
-aether config set OPENAI_API_KEY sk-your_key_here
-aether config set ANTHROPIC_API_KEY sk-ant-your_key_here
+krims-code config set OPENAI_API_KEY sk-your_key_here
+krims-code config set ANTHROPIC_API_KEY sk-ant-your_key_here
 ```
 
 ### Start chatting
 
 ```bash
-aether chat
+Krims Code chat
 ```
 
 ### Quick one-shot query
 
 ```bash
-aether ask "Explain quantum computing in simple terms"
+Krims Code ask "Explain quantum computing in simple terms"
 ```
 
 ---
@@ -123,7 +123,7 @@ aether ask "Explain quantum computing in simple terms"
 | **DeepSeek** | `DEEPSEEK_API_KEY` | 💳 Paid | `deepseek-chat` |
 | **Perplexity** | `PERPLEXITY_API_KEY` | 💳 Paid | `sonar` |
 
-> 💡 **Tip:** Start with **Groq** (fastest, free) or **Google Gemini** (most capable free tier). You can configure multiple providers and Aether will automatically failover between them!
+> 💡 **Tip:** Start with **Groq** (fastest, free) or **Google Gemini** (most capable free tier). You can configure multiple providers and Krims Code will automatically failover between them!
 
 ---
 
@@ -132,41 +132,41 @@ aether ask "Explain quantum computing in simple terms"
 ### Core Commands
 
 ```bash
-aether chat                    # Interactive chat session
-aether ask "your question"     # Single-shot query
-aether setup                   # Guided provider setup wizard
+Krims Code chat                    # Interactive chat session
+Krims Code ask "your question"     # Single-shot query
+Krims Code setup                   # Guided provider setup wizard
 ```
 
 ### Configuration
 
 ```bash
-aether config set <KEY> <value>   # Set a config value
-aether config get <KEY>           # Get a config value
-aether config list                # List all config (keys masked)
-aether config delete <KEY>        # Delete a config key
-aether config reset               # Delete all config
-aether config path                # Show config file location
+krims-code config set <KEY> <value>   # Set a config value
+krims-code config get <KEY>           # Get a config value
+krims-code config list                # List all config (keys masked)
+krims-code config delete <KEY>        # Delete a config key
+krims-code config reset               # Delete all config
+krims-code config path                # Show config file location
 ```
 
 ### Discovery
 
 ```bash
-aether providers               # List all 13+ supported providers
-aether providers --free        # Show only free-tier providers
-aether models                  # List all available models
-aether models groq             # Models for a specific provider
-aether modes                   # List reasoning modes
-aether status                  # System status & active providers
+Krims Code providers               # List all 13+ supported providers
+Krims Code providers --free        # Show only free-tier providers
+Krims Code models                  # List all available models
+Krims Code models groq             # Models for a specific provider
+Krims Code modes                   # List reasoning modes
+Krims Code status                  # System status & active providers
 ```
 
 ### Flags
 
 ```bash
-aether ask "prompt" --mode research     # Use specific reasoning mode
-aether ask "prompt" --file error.log    # Attach file context
-aether ask "prompt" --model gpt-4o      # Override model
-aether ask "prompt" --raw               # Raw text output (for piping)
-aether chat --mode architect            # Start chat in specific mode
+Krims Code ask "prompt" --mode research     # Use specific reasoning mode
+Krims Code ask "prompt" --file error.log    # Attach file context
+Krims Code ask "prompt" --model gpt-4o      # Override model
+Krims Code ask "prompt" --raw               # Raw text output (for piping)
+Krims Code chat --mode architect            # Start chat in specific mode
 ```
 
 ---
@@ -202,7 +202,7 @@ Inside interactive chat mode, use these slash commands:
 | `/dashboard` | Spawn zero-dependency local web server and launch telemetry dashboard HUD |
 | `/mic` | Record audio voice input from microphone and transcribe to text |
 | `/tokens` | View detailed session token usage and exchanges telemetry |
-| `/update` | Force check for updates and update Aether CLI manually |
+| `/update` | Force check for updates and update Krims Code CLI manually |
 | `/review` | Run git diff and stream an AI code review |
 | `/diagnose [cmd]` | Run build/tests and AI-debug any errors |
 | `/explain <file>` | AI-explain the design and logic of a file |
@@ -227,17 +227,17 @@ Inside interactive chat mode, use these slash commands:
 
 ## 🔐 Security
 
-- **Your keys stay on YOUR machine** — stored at `~/.aether/config.json`
+- **Your keys stay on YOUR machine** — stored at `~/.krims-code/config.json`
 - **No keys are bundled** in the package
 - **No telemetry** — zero data collection
-- **Keys are masked** when displayed (`aether config list`)
+- **Keys are masked** when displayed (`krims-code config list`)
 - **Environment variables** also supported as fallback
 
 ---
 
 ## 🔄 Failover Mesh
 
-Aether routes your prompt through all configured providers automatically:
+Krims Code routes your prompt through all configured providers automatically:
 
 ```
 Your Prompt
@@ -251,7 +251,7 @@ Your Prompt
 [Krylo Companion] → Local Response ✓
 ```
 
-If a provider returns an error (rate limit, quota, etc.), Aether automatically tries the next one. Configure multiple free providers for maximum resilience!
+If a provider returns an error (rate limit, quota, etc.), Krims Code automatically tries the next one. Configure multiple free providers for maximum resilience!
 
 ---
 
@@ -261,7 +261,7 @@ Attach code files, logs, configs, or documents for context-aware responses:
 
 ```bash
 # From CLI
-aether ask "What's wrong with this code?" --file buggy.js
+Krims Code ask "What's wrong with this code?" --file buggy.js
 
 # In chat mode
 /attach error.log
@@ -277,7 +277,7 @@ What errors are in this file?
 ```bash
 # Clone the repo
 git clone https://github.com/Krylo-60/aether-ai-cli.git
-cd aether-ai-cli
+cd krims-code-cli
 
 # Install dependencies
 npm install
@@ -286,9 +286,9 @@ npm install
 npm link
 
 # Test
-aether --help
-aether status
-aether ask "hello"
+Krims Code --help
+Krims Code status
+Krims Code ask "hello"
 ```
 
 ---
@@ -308,6 +308,6 @@ MIT License — see [LICENSE](LICENSE) for details.
 ---
 
 <p align="center">
-  <b>⚡ Aether Core AI v110 — Fusion Command Station ⚡</b><br>
+  <b>⚡ Krims Code Core AI v110 — Fusion Command Station ⚡</b><br>
   <i>Universal AI Gateway for the Terminal</i>
 </p>

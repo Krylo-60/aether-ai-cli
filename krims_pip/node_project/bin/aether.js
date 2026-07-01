@@ -1,7 +1,7 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 
 // ═══════════════════════════════════════════════════════════
-// AETHER AI CLI — Entry Point
+// Krims Code AI CLI — Entry Point
 // Universal AI Gateway — 13+ Providers, Free & Paid
 // ═══════════════════════════════════════════════════════════
 

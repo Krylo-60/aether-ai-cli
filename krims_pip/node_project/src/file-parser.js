@@ -1,5 +1,5 @@
-// ═══════════════════════════════════════════════════════════
-// AETHER AI CLI — File Parser & Context Injector
+﻿// ═══════════════════════════════════════════════════════════
+// Krims Code AI CLI — File Parser & Context Injector
 // ═══════════════════════════════════════════════════════════
 
 import { readFile, stat } from "node:fs/promises";
@@ -119,7 +119,7 @@ function formatBytes(bytes) {
 
 const EXCLUDE_DIRS = new Set([
   "node_modules", ".git", ".agents", "build", "dist", ".github",
-  "aether_pip", "aether_ai_agent_cli.egg-info", "aether_ai_cli.egg-info"
+  "KRIMS CODE_pip", "KRIMS CODE_ai_agent_cli.egg-info", "KRIMS CODE_ai_cli.egg-info"
 ]);
 
 /**

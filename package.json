@@ -8,7 +8,7 @@
   },
   "type": "module",
   "scripts": {
-    "start": "node bin/aether.js",
+    "start": "node bin/krims-code.js",
     "test": "node --test"
   },
   "keywords": [
@@ -18,7 +18,7 @@
     "grok",
     "xai",
     "chatbot",
-    "aether",
+    "Krims Code",
     "cyberpunk",
     "terminal",
     "assistant"

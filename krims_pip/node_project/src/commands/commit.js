@@ -1,4 +1,4 @@
-﻿import { getGitDiff, runGitCommit } from "../git.js";
+import { getGitDiff, runGitCommit } from "../git.js";
 import { getAIConfig } from "../config.js";
 import { routePrompt } from "../ai/router.js";
 import { MODES, DEFAULT_MODE } from "../modes.js";

@@ -1,4 +1,4 @@
-﻿import cp from "node:child_process";
+import cp from "node:child_process";
 import { getAIConfig } from "../config.js";
 import { colors, separator, keyValue, label } from "../ui/theme.js";
 

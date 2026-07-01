@@ -1,4 +1,4 @@
-﻿import { getAIConfig, configExists, getConfigPath } from "../config.js";
+import { getAIConfig, configExists, getConfigPath } from "../config.js";
 import { getActiveProviders } from "../ai/providers.js";
 import { colors, separator, keyValue, label, getActiveTheme } from "../ui/theme.js";
 import { readFileSync } from "node:fs";

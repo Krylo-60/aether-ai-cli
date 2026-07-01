@@ -1,4 +1,4 @@
-﻿# Krims Code AI CLI
+# Krims Code AI CLI
 
 > ⚡ **Universal AI Gateway** — 13+ providers, free & paid models, cyberpunk terminal
 

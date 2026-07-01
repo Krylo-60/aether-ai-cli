@@ -1,4 +1,4 @@
-﻿import { test, beforeEach, afterEach } from "node:test";
+import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
 import { routePrompt } from "../src/ai/router.js";
 

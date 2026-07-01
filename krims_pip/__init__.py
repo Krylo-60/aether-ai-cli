@@ -1,1 +1,1 @@
-﻿# Krims Code AI CLI Pip Package Wrapper
+# Krims Code AI CLI Pip Package Wrapper

@@ -1,4 +1,4 @@
-﻿import { readdirSync, statSync, readFileSync } from "node:fs";
+import { readdirSync, statSync, readFileSync } from "node:fs";
 import { join, sep, relative } from "node:path";
 
 const IGNORE_DIRS = new Set([

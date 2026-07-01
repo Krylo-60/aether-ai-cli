@@ -1,4 +1,4 @@
-﻿import { colors, label, separator, keyValue } from "../ui/theme.js";
+import { colors, label, separator, keyValue } from "../ui/theme.js";
 
 export default {
   name: "dashboard",

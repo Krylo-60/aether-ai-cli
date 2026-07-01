@@ -1,4 +1,4 @@
-﻿# Handoff Report - Milestone 1: Git and CI/CD Setup
+# Handoff Report - Milestone 1: Git and CI/CD Setup
 
 ## 1. Observation
 - **Workspace Root**: `C:\Users\naina\.gemini\antigravity\scratch\aether-ai-cli`

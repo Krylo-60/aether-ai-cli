@@ -1,4 +1,4 @@
-﻿import { test, before, after } from "node:test";
+import { test, before, after } from "node:test";
 import assert from "node:assert";
 import { join } from "node:path";
 import { writeFile, mkdir, rm } from "node:fs/promises";

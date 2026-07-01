@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // Krims Code AI CLI — Dynamic Theme-Aware Formatting Utilities
 // ═══════════════════════════════════════════════════════════
 
@@ -89,7 +89,7 @@ export const colors = new Proxy({}, {
 export const label = {
   get system() { return chalk.bgHex(activeThemeName === "cyberpunk" ? "#0c1825" : THEMES[activeThemeName].dim).hex(THEMES[activeThemeName].accent).bold(" SYSTEM "); },
   get user()   { return chalk.bgHex(activeThemeName === "cyberpunk" ? "#0c1825" : THEMES[activeThemeName].dim).hex(THEMES[activeThemeName].accent3).bold("   YOU  "); },
-  get Krims Code() { return chalk.bgHex(activeThemeName === "cyberpunk" ? "#0c1825" : THEMES[activeThemeName].dim).hex(THEMES[activeThemeName].accent).bold("  KRIMS "); },
+  get krims() { return chalk.bgHex(activeThemeName === "cyberpunk" ? "#0c1825" : THEMES[activeThemeName].dim).hex(THEMES[activeThemeName].accent).bold("  KRIMS "); },
   get error()  { return chalk.bgHex(activeThemeName === "cyberpunk" ? "#2a0a14" : THEMES[activeThemeName].dim).hex(THEMES[activeThemeName].danger).bold("  ERROR "); },
   get info()   { return chalk.bgHex(activeThemeName === "cyberpunk" ? "#0c1825" : THEMES[activeThemeName].dim).hex(THEMES[activeThemeName].accent2).bold("   INFO "); },
   get config() { return chalk.bgHex(activeThemeName === "cyberpunk" ? "#0c1825" : THEMES[activeThemeName].dim).hex(THEMES[activeThemeName].warning).bold(" CONFIG "); },

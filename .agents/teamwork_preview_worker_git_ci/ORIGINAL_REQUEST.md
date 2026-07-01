@@ -1,4 +1,4 @@
-﻿## 2026-06-25T13:36:02Z
+## 2026-06-25T13:36:02Z
 
 You are the Worker agent for the Aether AI CLI project.
 Your working directory is C:\Users\naina\.gemini\antigravity\scratch\aether-ai-cli\.agents\teamwork_preview_worker_git_ci

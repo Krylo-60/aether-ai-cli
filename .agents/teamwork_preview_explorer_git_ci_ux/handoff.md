@@ -1,4 +1,4 @@
-﻿# Aether AI CLI — Exploration Handoff Report
+# Aether AI CLI — Exploration Handoff Report
 
 This report summarizes findings regarding local Git status, configuration loading, context parsing, gateway routing, mathematical fallbacks, CI/CD setup, and CLI UX improvements.
 

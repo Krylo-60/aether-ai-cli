@@ -1,4 +1,4 @@
-﻿import { test, before, after } from "node:test";
+import { test, before, after } from "node:test";
 import assert from "node:assert";
 import { tmpdir } from "node:os";
 

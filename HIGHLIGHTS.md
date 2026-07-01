@@ -1,4 +1,4 @@
-﻿# Krims Code CLI v1.5.2 Highlights
+# Krims Code CLI v1.5.2 Highlights
 - **Expanded Autopilot Safe Commands**:
   - Whitelisted `python3` and `py` launcher versions/readouts as safe commands.
   - Allowed commands like `python3 --version`, `py --version`, `py -0p`, and `py -3.12 --version` to run instantly without prompting for permission in autopilot modes.

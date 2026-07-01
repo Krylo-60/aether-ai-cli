@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // Krims Code AI CLI — Visual Telemetry Server & Dashboard
 // Zero-dependency local server serving a cyberpunk observability HUD.
 // ═══════════════════════════════════════════════════════════

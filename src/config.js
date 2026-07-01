@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // Krims Code AI CLI — Secure Configuration Management
 // Stores user API keys locally at ~/.krims-code/config.json
 // Supports ALL AI providers (13+ and growing)

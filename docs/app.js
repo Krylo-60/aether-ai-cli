@@ -1,4 +1,4 @@
-﻿// KRIMS CODE CLI — RELEASE HUB — FULLY FUNCTIONAL LIVE DATA ENGINE
+// KRIMS CODE CLI — RELEASE HUB — FULLY FUNCTIONAL LIVE DATA ENGINE
 // Fetches real releases from GitHub API, npm registry, and PyPI
 
 const GITHUB_REPO = "Krylo-60/krims-code-cli";

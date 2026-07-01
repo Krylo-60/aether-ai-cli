@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // Krims Code AI CLI — Automated Update & Highlights Engine
 // Checks NPM registry, updates packages, and renders release details.
 // ═══════════════════════════════════════════════════════════

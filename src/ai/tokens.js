@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // Krims Code AI CLI — Real-time Token & Telemetry Tracker
 // Tracks input/output token counts and session usage metrics.
 // ═══════════════════════════════════════════════════════════

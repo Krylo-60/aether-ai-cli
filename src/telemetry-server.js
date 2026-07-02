@@ -1,7 +1,7 @@
-// ═══════════════════════════════════════════════════════════
-// Krims Code AI CLI — Visual Telemetry Server & Dashboard
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// Krims Code AI CLI â€” Visual Telemetry Server & Dashboard
 // Zero-dependency local server serving a cyberpunk observability HUD.
-// ═══════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 import http from "node:http";
 import { exec } from "node:child_process";
@@ -13,7 +13,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Krims Code Core // Visual Telemetry HUD</title>
+  <title>Krims Code // Visual Telemetry HUD</title>
   <style>
     /* Reset & variables */
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -369,7 +369,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
 </head>
 <body>
   <header>
-    <div class="hud-title">Krims Code Core // Telemetry HUD</div>
+    <div class="hud-title">Krims Code // Telemetry HUD</div>
     <div class="system-status">
       <span class="badge badge-cyan" id="node-count">NODES: 0</span>
       <span class="badge badge-green">LIVE STREAMING</span>
@@ -442,7 +442,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
       </div>
       <div style="display: flex; flex-direction: column; gap: 15px; font-size: 0.85rem; line-height: 1.5;">
         <div>
-          This dashboard provides real-time latency diagnostics, mesh failover trace telemetry, and token accounting for Krims Code Core AI. 
+          This dashboard provides real-time latency diagnostics, mesh failover trace telemetry, and token accounting for Krims Code AI. 
           It tracks active providers, network latencies, and offline fallback routes.
         </div>
         <div class="btn-container">

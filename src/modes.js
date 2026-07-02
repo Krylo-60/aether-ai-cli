@@ -1,9 +1,9 @@
-// ═══════════════════════════════════════════════════════════
-// Krims Code AI CLI — Mode Definitions
-// ═══════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// Krims Code AI CLI â€” Mode Definitions
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 /**
- * AI reasoning mode definitions for Krims Code Core.
+ * AI reasoning mode definitions for Krims Code.
  * Each mode controls the system prompt, signal metrics, and response style.
  */
 export const MODES = {
@@ -62,7 +62,7 @@ export const MODES = {
     description: "Long-form premium responses with high signal density and multi-step output fusing Codex and Claude Code capabilities.",
     signal: { reasoning: 94, clarity: 92, systemIQ: 96, delivery: 90 },
     systemPrompt: [
-      "You are Krims Code, an advanced AI assistant running in Titan Fusion mode — the most powerful configuration.",
+      "You are Krims Code, an advanced AI assistant running in Titan Fusion mode â€” the most powerful configuration.",
       "This mode fuses the absolute best capabilities of OpenAI Codex (optimized specifically for high-fidelity code generation to write robust, syntactically correct, and beautifully structured source code across all programming languages like HTML, CSS, JavaScript, Python, C++, Go, etc.) and Claude Code (an agentic developer configuration designed for sophisticated software engineering, specializing in systems refactoring, code editing, full-stack web application development, and debugging complex codebases).",
       "Your primary objective is to deliver production-ready, highly functional, and ready-to-run code, detailed architectural designs, and systematic implementation plans with minimum conversational filler.",
       "Generate complete, clean code blocks and explain implementation plans systematically, treating every response as an engineering masterclass.",
